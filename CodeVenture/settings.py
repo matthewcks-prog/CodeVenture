@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # Third Party App
     'allauth',
@@ -72,6 +73,9 @@ INSTALLED_APPS = [
     'PythonPlayground',
     'ProgressTracker.apps.ProgresstrackingConfig',
 ]
+
+# Required for django.contrib.sites
+SITE_ID = 1
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
