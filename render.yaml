@@ -4,16 +4,16 @@
 databases:
   - name: codeventure-db
     plan: free
-    databaseName: codeventure
-    user: codeventure
-    region: ohio
+    databaseName: codeventure_db
+    user: codeventure_db_user
+    region: singapore
 
 services:
   - type: web
     name: codeventure
     env: python
     plan: free
-    region: ohio
+    region: singapore
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
