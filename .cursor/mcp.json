@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "django-debug": {
+      "command": "python",
+      "args": ["django_mcp_server.py"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "CodeVenture.settings",
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "description": "Django debugging and inspection tools"
+    }
+  }
+}
