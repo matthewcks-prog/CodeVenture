@@ -1,8 +1,19 @@
+# Render Blueprint - Infrastructure as Code for CodeVenture
+# This file manages both the web service and database together
+
+databases:
+  - name: codeventure-db
+    plan: free
+    databaseName: codeventure
+    user: codeventure
+    region: ohio
+
 services:
   - type: web
     name: codeventure
     env: python
     plan: free
+    region: ohio
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
@@ -18,4 +29,15 @@ services:
         value: false
       - key: WEB_CONCURRENCY
         value: 2
+      - key: DATABASE_URL
+        fromDatabase:
+          name: codeventure-db
+          property: connectionString
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+        sync: false
 
