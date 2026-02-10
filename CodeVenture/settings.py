@@ -12,21 +12,41 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Environment setup
+env = environ.Env(
+    DEBUG=(bool, False),
+)
+
+# Read .env file for local development if it exists.
+# In production (Render), configuration is provided via environment variables.
+env_file = BASE_DIR / ".env"
+if env_file.exists():
+    environ.Env.read_env(str(env_file))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-SECRET_KEY = 'django-insecure-5w%^ylnn0$_(!bj5wtn86700&rdc=$$bj#+p*rf*37pzogl9)7'
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-dev-key-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = ['*']
+if not DEBUG and SECRET_KEY == "insecure-dev-key-change-me":
+    raise ImproperlyConfigured(
+        "DJANGO_SECRET_KEY must be set to a secure value when DJANGO_DEBUG is False."
+    )
+
+ALLOWED_HOSTS = env.list(
+    "DJANGO_ALLOWED_HOSTS",
+    default=["localhost", "127.0.0.1"],
+)
 
 # Application definition
 
@@ -71,6 +91,7 @@ SOCIALACCOUNT_ADAPTER = 'WelcomePage.adapter.CustomSocialAccountAdapter'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -104,28 +125,11 @@ WSGI_APPLICATION = 'CodeVenture.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if bool(int(os.environ.get('DJANGO_GITHUB_CI', '0'))):
-    HOST = '127.0.0.1'
-else:
-    HOST = '34.129.128.151'
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': os.environ.get('DJANGO_DB_NAME'),
-        # 'USER': os.environ.get('DJANGO_DB_USER'),
-        # 'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD'),
-        # 'HOST': os.environ.get('DJANGO_DB_HOST'),
-        # 'PORT': os.environ.get('DJANGO_DB_PORT', '3306'),
-        'NAME': 'codeventure-db',
-        'USER': 'root',
-        'PASSWORD': '7(YPQRqCHg]<V%zV',
-        'HOST': HOST,
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-    }
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+    )
 }
 
 # Password validation
@@ -161,7 +165,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'collected_static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise compressed manifest static file storage for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -171,4 +178,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

@@ -1,99 +1,205 @@
-# CodeVenture - Learn Python the Fun Way! 🐍🎮
+## CodeVenture - Learn Python the Fun Way! 🐍🎮
 
-## Overview
+### Overview
 
-**CodeVenture** is an engaging and interactive platform aimed at young learners to make Python programming not just educational, but also fun and exciting. Our platform incorporates game-like elements, quizzes, interactive tutorials, and weekly progress tracking to make learning Python a thrill.
+**CodeVenture** is an engaging and interactive platform aimed at young learners to make Python programming not just educational, but also fun and exciting. The platform incorporates game-like elements, quizzes, interactive tutorials, and weekly progress tracking to make learning Python a thrill.
 
-![CodeVenture Logo](https://media.discordapp.net/attachments/1138474786914320486/1168468627557720084/logo_feedback.png?ex=6551e035&is=653f6b35&hm=83dda9762bc0ba6f9f4f33d9121b8746ec42a4603941c7bec4b1e5125a276437&=&width=303&height=181)
+![CodeVenture Screenshot](assets/homepage.png)
 
-## Features 🌟
+### Features 🌟
 
-### Welcome Page
-- Simple and secure login and sign-up features.
-- **Google OAuth Integration**: Swiftly login using your Google account for a seamless experience.
+- **Welcome Page**
+  - Simple and secure login and sign-up features.
+  - **Google OAuth Integration** (via `django-allauth`) for easy sign-in.
 
-### Learning Modules
-- Lessons tailored to enhance the Python programming skills of learners.
+- **Learning Modules**
+  - Lessons tailored to enhance the Python programming skills of learners.
 
-### Quizzes
-- Test your knowledge after each module with comprehensive quizzes.
+- **Quizzes & Challenges**
+  - Comprehensive quizzes after each module.
+  - Real-world style coding challenges from beginner to advanced.
 
-### Challenges
-- Practice real-world programming problems to strengthen your coding skills.
-- Engaging challenges ranging from beginner to advanced levels.
+- **Python Playground**
+  - Integrated IDE environment (Monaco-based) where students can practice Python coding in real-time.
+  - Safely execute Python scripts and see immediate results.
 
-### Python Playground
-- An integrated IDE environment where students can practice Python coding in real-time.
-- Safely execute your Python scripts and see immediate results.
+- **Progress Report**
+  - PDF exports and reports to help track learning milestones and areas for improvement.
 
-### Progress Report
-- **DropView Feature**: Allows students to download a detailed PDF report of their progress. This helps in tracking learning milestones and areas that need improvement.
+- **Feedback**
+  - Feedback form at the bottom of the page to gather suggestions and improvements.
 
-### Feedback
-- Found at the bottom of the page, the feedback form ensures that we are constantly aware of user suggestions and areas of improvement.
+### Tech Stack
 
-### Backend Infrastructure
-- **GCP SQL Hosting**: Our platform uses Google Cloud Platform to host our MySQL server, ensuring fast, reliable, and scalable database operations.
+- **Backend**: Django 4.2
+- **Auth**: `django-allauth` with Google OAuth
+- **Database**:
+  - Local: SQLite (by default) or MySQL (via `DATABASE_URL`)
+  - Production: PostgreSQL on Render (recommended)
+- **Static Files**: Django staticfiles + WhiteNoise
+- **Testing/CI**: `pytest`, `pytest-django`, GitHub Actions
 
-### Database Access
-- Progress tracking for parents, teacher, and student. Track and analyze performance metrics over time.
+For a detailed list of functional requirements, see:  
+`Documents/Main features implemented for Code Venture.pdf`.
 
-###
+---
 
-#### **For a detailed list of main requirements,** please refer to the [Main Features Implemented for Code Venture.pdf](Main%20features%20implemented%20for%20Code%20Venture.pdf).
-## Getting Started 🚀
+## Local Development 🚀
 
+### 1. Clone the repository
 
-### Install Dependencies
-Navigate to the project directory and run:
 ```bash
+git clone https://github.com/<your-username>/CodeVenture.git
+cd CodeVenture
+```
+
+### 2. Create and activate a virtual environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Run the Application 🏃‍♀️🏃‍♂️
+### 4. Configure environment variables
 
-To run CodeVenture, navigate to the project directory and execute:
+Copy the example env file and edit as needed:
+
+```bash
+cp .env.example .env  # On Windows: copy .env.example .env
+```
+
+Update `.env` with:
+
+- `DJANGO_SECRET_KEY` – any random string for local dev.
+- `DJANGO_DEBUG` – `True` for local.
+- `DATABASE_URL` – usually leave blank to use SQLite locally.
+
+### 5. Apply migrations
+
+```bash
+python manage.py migrate
+```
+
+### 6. Run the development server
 
 ```bash
 python manage.py runserver
 ```
 
-After executing the above command, the application will start, and you'll typically see output indicating the server is running. You can then access the application by opening a web browser and navigating to:
+Then visit `http://localhost:8000/` in your browser.
 
-```bash
-http://localhost:8000/
-```
+---
 
-Simply copy and paste the above URL into your browser's address bar to access CodeVenture.
+## Environment Configuration 🌱
 
+Key environment variables (see `.env.example` for the full list):
 
+- **DJANGO_SECRET_KEY** – required in production  
+- **DJANGO_DEBUG** – `True`/`False`  
+- **DJANGO_ALLOWED_HOSTS** – comma-separated, e.g. `localhost,127.0.0.1,codeventure.onrender.com`  
+- **DJANGO_CSRF_TRUSTED_ORIGINS** – comma-separated origins with scheme, e.g. `https://codeventure.onrender.com`  
+- **DATABASE_URL**
+  - Local default: SQLite if unset.
+  - MySQL example: `mysql://user:password@host:3306/codeventure-db`
+  - Postgres example: `postgres://user:password@host:5432/codeventure`
+
+In production, you must set a strong `DJANGO_SECRET_KEY`, disable `DJANGO_DEBUG`, and configure `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`.
+
+---
+
+## Render Deployment 🌐
+
+This repo includes a `render.yaml` blueprint for one-click deployment to Render.
+
+### 1. Create a new Render Web Service
+
+1. Push this repository to GitHub.
+2. In the Render dashboard, choose **New → Blueprint** and point it at your GitHub repo.
+3. Render will detect `render.yaml` and propose a **Python web service** named `codeventure`.
+
+### 2. Attach a PostgreSQL database
+
+1. In Render, create a **PostgreSQL** instance (Free tier is fine for demos).  
+2. Once created, copy the generated `DATABASE_URL`.  
+3. In the `codeventure` service settings, add an environment variable:
+   - **Key**: `DATABASE_URL`
+   - **Value**: the value from the Postgres instance.
+
+Render will automatically inject this into the app during build and runtime.
+
+### 3. Configure Django environment on Render
+
+Add these environment variables in the Render dashboard for the `codeventure` service:
+
+- `DJANGO_SECRET_KEY` – long random string.
+- `DJANGO_DEBUG` – `False`.
+- `DJANGO_ALLOWED_HOSTS` – e.g. `codeventure.onrender.com`.
+- `DJANGO_CSRF_TRUSTED_ORIGINS` – e.g. `https://codeventure.onrender.com`.
+
+The `render.yaml` file configures:
+
+- **Build command**:
+  - `pip install -r requirements.txt`
+  - `python manage.py collectstatic --noinput`
+  - `python manage.py migrate --noinput`
+- **Start command**:
+  - `gunicorn CodeVenture.wsgi:application`
+
+Static assets are served by **WhiteNoise** via Django’s `STATIC_ROOT` (`staticfiles/`).
+
+### 4. Verifying the deployment
+
+After deployment:
+
+1. Visit the Render URL (e.g. `https://codeventure.onrender.com`).
+2. Ensure that static assets (CSS, images) load correctly.
+3. Run in the Render shell (or locally with the same env vars):
+   - `python manage.py check --deploy`
+   - `python manage.py collectstatic --noinput`
+   - `python manage.py migrate --noinput`
+
+Any failing checks should be reviewed; the current configuration aims to satisfy Django’s standard deployment checklist when `DJANGO_DEBUG=False`.
+
+---
 
 ## Testing Instructions 🧪
 
-To thoroughly test the platform, we've created four types of user accounts, each with unique access and functionalities. Here are the details for testing:
+To thoroughly test the platform, four example user accounts are provided:
 
-### Admin Account
-- **Username:** `admin`
-- **Password:** `Codeventure2023`
-- **Capabilities:** Full administrative access including user management and analytics.
+- **Admin**
+  - Username: `admin`
+  - Password: `Codeventure2023`
 
-### Student Account
-- **Username:** `studentaccount`
-- **Password:** `Codeventure2023`
-- **Capabilities:** Access to learning modules, quizzes, and personal progress tracking.
+- **Student**
+  - Username: `studentaccount`
+  - Password: `Codeventure2023`
 
-### Parent Account
-- **Username:** `parentaccount`
-- **Password:** `Codeventure2023`
-- **Capabilities:** Ability to track children's progress and access educational resources.
+- **Parent**
+  - Username: `parentaccount`
+  - Password: `Codeventure2023`
 
-### Teacher Account
-- **Username:** `teacheraccount`
-- **Password:** `Codeventure2023`
-- **Capabilities:** Access to student progress tracking, and curriculum customization.
+- **Teacher**
+  - Username: `teacheraccount`
+  - Password: `Codeventure2023`
 
-Feel free to explore these accounts to experience the platform from different user perspectives.
+> These example credentials are for demo environments only; do **not** reuse them in production.
+
+You can also run the automated test suite locally:
+
+```bash
+pytest
+```
+
+---
 
 ## License 📝
 
-This project is licensed under the MIT License. For more information, see the [LICENSE](LICENSE) file in our GitHub repository.
+This project is licensed under the MIT License. For more information, see the [`LICENSE`](LICENSE) file in this repository.
+
