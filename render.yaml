@@ -2,7 +2,6 @@ services:
   - type: web
     name: codeventure
     env: python
-    runtime: python
     plan: free
     buildCommand: |
       pip install --upgrade pip
