@@ -30,6 +30,9 @@ def quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
 
+    if not hasattr(request.user, 'student'):
+        return redirect('home')
+
     if request.method == 'POST':
         form = QuizForm(request.POST, questions=questions)
         if form.is_valid():
@@ -156,12 +159,16 @@ def quiz_list(request, module_id):
 def quiz_summary_view(request, quiz_id):
     # View for displaying a summary of quiz attempts.
     quiz = get_object_or_404(Quiz, id=quiz_id)
+    student = None
     if hasattr(request.user, 'student'):
-        student = Student.objects.get(user=request.user)
+        student = request.user.student
     elif hasattr(request.user, 'parent'):
         student = request.user.parent.get_children().first()
     elif hasattr(request.user, 'teacher'):
         student = request.user.teacher.get_students().first()
+
+    if student is None:
+        return redirect('home')
 
     attempts = QuizResult.objects.filter(user=student, quiz=quiz)
     now = timezone.now()

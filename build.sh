@@ -9,22 +9,23 @@ echo "===> Upgrading pip..."
 pip install --upgrade pip
 
 # Install dependencies
-echo "===> Installing dependencies from requirements.txt..."
+echo "===> Installing dependencies..."
 pip install -r requirements.txt
 
 # Collect static files
 echo "===> Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Fix any migration inconsistencies BEFORE running migrate.
-# This handles the socialaccount/sites ordering issue by directly
-# inserting missing migration records via raw SQL, which bypasses
-# Django's consistency check that blocks normal migrate commands.
-echo "===> Checking and fixing migration history..."
+# Fix any migration history inconsistencies (sites / socialaccount ordering)
+echo "===> Checking migration history..."
 python manage.py fix_migration_history --execute
 
-# Now run migrations normally
+# Apply database migrations
 echo "===> Running migrations..."
 python manage.py migrate --noinput
+
+# Ensure the Sites framework record exists (required by allauth)
+echo "===> Configuring site record..."
+python manage.py setup_site
 
 echo "===> Build completed successfully!"

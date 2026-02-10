@@ -200,8 +200,8 @@
                 </a>
             {% endfor %}
         {% elif user.teacher %}
-            {% for student in user.parent.get_student %}
-                <a class="btn10" href="{% url 'download_report' student.user.id %}">
+            {% for student in user.teacher.get_students %}
+                <a class="btn10" href="{% url 'download_report' student.id %}">
                     <img class="vector-icon17" alt="" src="{% static 'public/download_icon.svg' %}"/>
                     <b class="hello-user">Download Report for {{ student.full_name }}</b>
                 </a>

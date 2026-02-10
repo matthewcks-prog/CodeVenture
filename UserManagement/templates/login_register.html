@@ -52,12 +52,14 @@
             <h1 class="center-text">Log In With</h1>
             <form method="POST" action="" class="login-form">
                 {% csrf_token %}
+                {% if google_oauth_configured %}
                 <div class="social-login center-text">
                     <a href="{% url 'google_login' %}" class="btn-google no-underline">
                         <img src="https://cdn-icons-png.flaticon.com/512/2504/2504739.png" alt="GOOGLE">
                         Google
                     </a>
                 </div>
+                {% endif %}
 
                 <div class="input-group">
                     <label for="username" class="label">Username</label>
