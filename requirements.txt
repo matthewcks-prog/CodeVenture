@@ -6,7 +6,6 @@ tzdata==2024.2
 
 # Database Adapters
 psycopg2-binary==2.9.11
-mysqlclient==2.2.5
 
 # Authentication & OAuth
 django-allauth==65.3.0

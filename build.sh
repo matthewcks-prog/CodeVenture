@@ -2,41 +2,29 @@
 # Build script for Render deployment
 set -o errexit  # Exit on error
 
-echo "Starting build process..."
+echo "===> Starting build process..."
 
 # Upgrade pip
-echo "Upgrading pip..."
+echo "===> Upgrading pip..."
 pip install --upgrade pip
 
 # Install dependencies
-echo "Installing dependencies from requirements.txt..."
+echo "===> Installing dependencies from requirements.txt..."
 pip install -r requirements.txt
 
 # Collect static files
-echo "Collecting static files..."
+echo "===> Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Handle migration inconsistency
-echo "Checking for migration inconsistencies..."
+# Fix any migration inconsistencies BEFORE running migrate.
+# This handles the socialaccount/sites ordering issue by directly
+# inserting missing migration records via raw SQL, which bypasses
+# Django's consistency check that blocks normal migrate commands.
+echo "===> Checking and fixing migration history..."
+python manage.py fix_migration_history --execute
 
-# Try to run migrations normally first
-if python manage.py migrate --noinput 2>&1; then
-    echo "[SUCCESS] Migrations applied successfully!"
-else
-    echo "[WARNING] Migration error detected. Attempting to fix..."
-    
-    # If there's an inconsistency error, we need to fake the sites migration
-    # This is safe because the tables are likely already created
-    echo "Faking sites.0001_initial migration..."
-    python manage.py migrate sites 0001 --fake-initial || true
-    
-    echo "Faking sites.0002_alter_domain_unique migration..."
-    python manage.py migrate sites --fake-initial || true
-    
-    echo "Now running all migrations..."
-    python manage.py migrate --noinput
-    
-    echo "[SUCCESS] Migrations fixed and applied!"
-fi
+# Now run migrations normally
+echo "===> Running migrations..."
+python manage.py migrate --noinput
 
-echo "Build completed successfully!"
+echo "===> Build completed successfully!"
