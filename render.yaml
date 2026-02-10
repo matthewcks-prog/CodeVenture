@@ -10,7 +10,7 @@ services:
     startCommand: gunicorn CodeVenture.wsgi:application
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11
+        value: 3.11.7
       - key: DJANGO_SETTINGS_MODULE
         value: CodeVenture.settings
       - key: DJANGO_DEBUG
