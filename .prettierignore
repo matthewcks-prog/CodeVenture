@@ -1,0 +1,15 @@
+# ============================================================
+# Prettier Ignore — Protect Django Templates
+# ============================================================
+# Prettier (and similar HTML formatters) break Django template
+# tags by wrapping long lines.  Django's lexer requires every
+# {% … %} tag to live on a SINGLE line.  Formatting HTML files
+# that contain Django tags will silently corrupt them.
+# ============================================================
+
+# All Django HTML templates
+*.html
+
+# Compiled / vendored assets
+staticfiles/
+node_modules/

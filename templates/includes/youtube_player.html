@@ -1,0 +1,38 @@
+{# Generic YouTube player with graceful fallbacks. #}
+{% if video and video.embed_url %}
+    <iframe
+        class="{{ css_class|default:'dynamic-video' }}"
+        src="{{ video.embed_url }}"
+        title="{{ title|default:'YouTube video player' }}"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+    ></iframe>
+    {% if video.watch_url %}
+        <p class="{{ link_text_class|default:'video-fallback-text' }}">
+            This video may not play on some devices. You can also
+            <a href="{{ video.watch_url }}" target="_blank" rel="noopener noreferrer">watch it on YouTube</a>.
+        </p>
+    {% endif %}
+{% elif video and video.watch_url %}
+    <a
+        href="{{ video.watch_url }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="{{ link_class|default:'video-fallback-link' }}"
+    >
+        {% if video.thumbnail_url %}
+            <img
+                src="{{ video.thumbnail_url }}"
+                alt="{{ title|default:video.name|default:'YouTube video' }}"
+                class="{{ css_class|default:'dynamic-video' }}"
+            />
+        {% else %}
+            <p>This video cannot be embedded here. Click to watch it on YouTube.</p>
+        {% endif %}
+    </a>
+{% else %}
+    <p>No video is available for this lecture yet.</p>
+{% endif %}
+

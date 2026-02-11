@@ -65,3 +65,7 @@ iniconfig==2.0.0
 packaging==24.2
 colorama==0.4.6
 six==1.17.0
+
+# Browser Automation
+playwright
+pytest-playwright

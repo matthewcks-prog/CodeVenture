@@ -13,13 +13,14 @@ def home_view(request):
     if not request.user.is_authenticated:
         return render(request, 'WelcomePage.html', {'form': form})
 
-    # --- Authenticated user ---
-    # Handle feedback form submission
+    # --- Handle feedback form submission for all users ---
     if request.method == 'POST':
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.user = request.user
+            # Associate with user if authenticated, otherwise leave null
+            if request.user.is_authenticated:
+                ticket.user = request.user
             ticket.save()
             return redirect('home')
 

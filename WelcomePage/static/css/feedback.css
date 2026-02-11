@@ -1,0 +1,264 @@
+/* Feedback Form Styles - Premium Overhaul */
+
+/* Main Container with Full-Bleed Background */
+.feedback {
+  background-color: var(--color-gray-100);
+  padding-block: var(--spacing-3xl);
+  padding-inline: var(--spacing-md);
+  margin-top: 0;
+  width: 100%;
+
+  /* Layout: Centered content max-width */
+  display: flex;
+  justify-content: center;
+}
+
+/* Inner Content Wrapper (constrains width & handles grid) */
+.feedback-content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr; /* Stacked on mobile */
+  gap: var(--spacing-2xl);
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .feedback-content-wrapper {
+    grid-template-columns: 1fr 1fr; /* Equal columns on tablets */
+    gap: var(--spacing-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .feedback-content-wrapper {
+    grid-template-columns: 400px 1fr; /* Form fixed width, info flexible */
+    gap: var(--spacing-3xl);
+  }
+}
+
+/* --- Form Section --- */
+.contact-form {
+  background-color: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); /* Increased shadow depth */
+  border: 1px solid rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  .contact-form {
+    padding: var(--spacing-lg);
+  }
+}
+
+.text1 {
+  margin-bottom: var(--spacing-lg);
+  text-align: center; /* Center header inside form */
+}
+
+.feedback1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-brand-dark);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.send-us-a {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.text-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.fullname-textbox,
+.message-textbook {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background-color: #f9f9f9; /* Light gray bg for inputs */
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.fullname-textbox:focus,
+.message-textbook:focus {
+  background-color: white;
+  border-color: var(--color-primary);
+  outline: 4px solid rgba(50, 146, 218, 0.1); /* Subtle focus ring */
+}
+
+.message-textbook {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.submit-btn {
+  background-color: var(--color-brand-dark);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  width: 100%;
+  box-shadow: var(--shadow-md);
+}
+
+.submit-btn:hover {
+  background-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* --- Info Section (Right Side) --- */
+.site-map,
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Container for all right-side text */
+.feedback-info-column {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+}
+
+@media (min-width: 768px) {
+    .feedback-info-column {
+        grid-template-columns: 1fr 1fr; /* Side-by-side info on tablets */
+    }
+}
+
+@media (min-width: 1024px) {
+    .feedback-info-column {
+        grid-template-columns: 1fr 1fr; /* Keep side-by-side or stack depending on preference. Let's stack for better column usage */
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+}
+
+/* Mobile responsiveness for feedback section */
+@media (max-width: 767px) {
+  .feedback {
+    padding-inline: 0;
+  }
+
+  .feedback-content-wrapper {
+    padding-inline: var(--spacing-md);
+  }
+
+  .feedback-info-column {
+    gap: var(--spacing-xl);
+  }
+
+  .phone, .email {
+    font-size: var(--font-size-sm);
+  }
+}
+
+
+.site-map1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-brand-dark);
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  display: inline-block;
+}
+
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.about-us {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+}
+
+.about-us:hover {
+  color: var(--color-primary);
+  padding-left: var(--spacing-xs); /* Slide effect */
+}
+
+/* Contact Details */
+.contact-info {
+    gap: var(--spacing-md);
+}
+
+.logo-feedback-icon {
+  max-width: 180px;
+  height: auto;
+  margin-bottom: var(--spacing-lg);
+  display: none; /* Hide confusing logo in info section if redundancy is an issue, or keep it */
+}
+
+@media (min-width: 1024px) {
+    .logo-feedback-icon {
+        display: block;
+    }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.phone, .email {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+.phone img, .email img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+}
+
+.mahissh { /* Legacy class name for contact details text */
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+
+/* Footer Reuse (if needed inside this block) */
+.footer {
+  text-align: center;
+  padding: var(--spacing-md);
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: auto;
+}

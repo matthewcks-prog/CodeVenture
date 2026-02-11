@@ -1,0 +1,111 @@
+{% load static %}
+{% comment %}
+Unified Navbar Component
+- Single source of truth for the site-wide navigation bar
+- Handles both authenticated and unauthenticated states (student / parent / teacher)
+- Included by: base_generic.html (include 'includes/navbar.html')
+- Styles: global.css (.site-nav BEM component)
+{% endcomment %}
+<nav class="site-nav" aria-label="Main navigation">
+  {# ---------- Logo (always visible) ---------- #}
+  <a class="site-nav__logo" href="{% url 'home' %}">
+    <img
+      class="site-nav__logo-img"
+      alt="CodeVenture Logo"
+      src="{% static 'public/logo@2x.png' %}"
+    />
+  </a>
+
+  {% if user.is_authenticated %} {# ====== Authenticated state ====== #}
+  <div class="site-nav__actions">
+    {# --- Role-based navigation links --- #}
+    <div class="site-nav__links">
+      {% if user.parent or user.teacher %}
+      <a class="site-nav__nav-link" href="{% url 'parent_progress_tracker' %}"
+        >Progress Tracker</a
+      >
+      <a class="site-nav__nav-link" href="{% url 'modules_list_quiz' %}"
+        >Quiz Results</a
+      >
+      {% else %}
+      <a class="site-nav__nav-link" href="{% url 'module_handler' %}"
+        >Learning Modules</a
+      >
+      <a class="site-nav__nav-link" href="{% url 'modules_list_quiz' %}"
+        >Quizzes</a
+      >
+      <a class="site-nav__nav-link" href="{% url 'challenges_list' %}"
+        >Challenges</a
+      >
+      <a class="site-nav__nav-link" href="{% url 'playground' %}"
+        >Python Playground</a
+      >
+      {% endif %}
+    </div>
+
+    {# --- Mobile menu toggle (hidden on desktop) --- #}
+    <button
+      class="site-nav__menu-btn"
+      id="menuToggle"
+      aria-label="Toggle navigation menu"
+    >
+      <img
+        class="site-nav__menu-icon"
+        alt=""
+        src="{% static 'public/vector2.svg' %}"
+      />
+    </button>
+
+    {# --- Profile picture button (opens dropdown) --- #}
+    <button class="site-nav__profile-btn" id="profilePic">
+      {% if user.socialaccount_set.all %}
+      <img
+        class="site-nav__profile-img"
+        alt="Profile Picture"
+        src="{{ user.socialaccount_set.all.0.get_avatar_url }}"
+      />
+      {% else %}
+      {# Role-based default profile pictures #}
+      {% if user.student %}
+      <img
+        class="site-nav__profile-img"
+        alt="Student Profile"
+        src="{% static 'public/student_profile_pic.jpg' %}"
+      />
+      {% elif user.parent %}
+      <img
+        class="site-nav__profile-img"
+        alt="Parent Profile"
+        src="{% static 'public/parent_profile_pic.jpg' %}"
+      />
+      {% elif user.is_staff or user.teacher %}
+      <img
+        class="site-nav__profile-img"
+        alt="Admin Profile"
+        src="{% static 'public/admin_profile_pic.png' %}"
+      />
+      {% else %}
+      {# Fallback for edge cases #}
+      <img
+        class="site-nav__profile-img"
+        alt="Default Profile"
+        src="{% static 'public/student_profile_pic.jpg' %}"
+      />
+      {% endif %}
+      {% endif %}
+    </button>
+  </div>
+
+  {% else %} {# ====== Unauthenticated state ====== #}
+  <div class="site-nav__actions">
+    <a class="site-nav__link site-nav__link--outline" href="{% url 'login' %}"
+      >Login</a
+    >
+    <a
+      class="site-nav__link site-nav__link--primary"
+      href="{% url 'choose_user_type' %}"
+      >Sign Up</a
+    >
+  </div>
+  {% endif %}
+</nav>

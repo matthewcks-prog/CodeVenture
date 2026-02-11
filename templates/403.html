@@ -1,0 +1,39 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block title %}403 - Forbidden{% endblock %}
+
+{% block content %}
+<div class="error-container" style="text-align: center; padding: 50px; max-width: 600px; margin: 0 auto;">
+    <div class="error-content">
+        <h1 style="font-size: 72px; color: #e67e22; margin: 20px 0;">403</h1>
+        <h2 style="font-size: 32px; color: #333; margin: 20px 0;">Access Forbidden</h2>
+        <p style="font-size: 18px; color: #666; margin: 20px 0;">
+            You don't have permission to access this resource.
+        </p>
+        
+        <div class="error-details" style="margin: 30px 0; padding: 20px; background: #fff3cd; border-radius: 5px;">
+            <p style="margin: 0; color: #856404;">
+                <strong>Why might this happen?</strong><br>
+                • You're not logged in<br>
+                • You don't have the required permissions<br>
+                • The resource is restricted to certain user types
+            </p>
+        </div>
+        
+        <div class="error-actions" style="margin-top: 40px;">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary" style="display: inline-block; padding: 12px 30px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">
+                Login
+            </a>
+            {% endif %}
+            <a href="{% url 'home' %}" class="btn btn-primary" style="display: inline-block; padding: 12px 30px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">
+                Go to Home
+            </a>
+            <a href="javascript:history.back()" class="btn btn-secondary" style="display: inline-block; padding: 12px 30px; background-color: #95a5a6; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">
+                Go Back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

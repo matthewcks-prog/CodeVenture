@@ -1,5 +1,6 @@
 import pytest
 from LearningResource.models import VideoTutorial, LearningModule, SubModule, Badge
+from LearningResource import youtube_utils
 from django.db import IntegrityError
 
 
@@ -40,6 +41,23 @@ def test_video_tutorial_creation(video_tutorial):
     assert video_tutorial.name == "Sample Video"
     assert len(video_tutorial.video_id) == 11
     assert video_tutorial.video_id == "rHux0gMZ3Eg"
+
+
+@pytest.mark.django_db
+def test_video_tutorial_embed_url(video_tutorial):
+    """Model exposes a ready-to-use embed URL."""
+    assert video_tutorial.embed_url == youtube_utils.build_embed_url("rHux0gMZ3Eg")
+
+
+def test_youtube_utils_extracts_id_from_full_url():
+    url = "https://www.youtube.com/watch?v=rHux0gMZ3Eg&ab_channel=Example"
+    assert youtube_utils.extract_video_id(url) == "rHux0gMZ3Eg"
+
+
+def test_youtube_utils_rejects_invalid_id():
+    invalid = "not-a-valid-id"
+    normalised = youtube_utils.extract_video_id(invalid)
+    assert not youtube_utils.is_valid_video_id(normalised or "")
 
 
 # LearningModule Tests

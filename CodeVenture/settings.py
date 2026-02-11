@@ -84,8 +84,25 @@ SITE_ID = 1
 # ---------------------------------------------------------------------------
 # django-allauth configuration
 # ---------------------------------------------------------------------------
+
+# Account settings (updated for allauth 0.50+)
+ACCOUNT_LOGIN_METHODS = {'username'}  # Primary login method
+ACCOUNT_SIGNUP_FIELDS = [
+    'email*',      # Required email field
+    'username*',   # Required username field
+    'password1*',  # Required password field
+    'password2*',  # Required password confirmation field
+]
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Social account settings
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_ADAPTER = 'WelcomePage.adapter.CustomSocialAccountAdapter'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Google OAuth — configured entirely via environment variables.
 # When credentials are present, allauth uses settings-based config (no DB
@@ -97,7 +114,10 @@ _GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', '')
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'VERIFIED_EMAIL': True,
     },
 }
 
@@ -105,6 +125,7 @@ if _GOOGLE_CLIENT_ID and _GOOGLE_CLIENT_SECRET:
     SOCIALACCOUNT_PROVIDERS['google']['APP'] = {
         'client_id': _GOOGLE_CLIENT_ID,
         'secret': _GOOGLE_CLIENT_SECRET,
+        'key': '',
     }
 
 # Expose to context processor (read-only, no secret leakage)
@@ -123,6 +144,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'CodeVenture.middleware.SecurityHeadersMiddleware',
+    'CodeVenture.middleware.ErrorHandlingMiddleware',
 ]
 
 ROOT_URLCONF = 'CodeVenture.urls'

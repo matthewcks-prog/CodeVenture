@@ -33,7 +33,7 @@
                                 >
                                     {% if module_progress.progress > 0 %}
                                         <div class="bar" style="width: {{ module_progress.progress|multiply:100 }}%;">
-                                            <b class="concept-modules">{{ module_progress.progress|multiply:100 }}%</b>
+                                            <span class="progress-label">{{ module_progress.progress|multiply:100 }}%</span>
                                         </div>
                                     {% endif %}
                                 </div>

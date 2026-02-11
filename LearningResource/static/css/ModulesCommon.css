@@ -1,0 +1,283 @@
+/* ==========================================================================
+   Modules Common CSS
+   Shared styles for Learning Resource modules (Lectures, Concept Modules)
+   ========================================================================== */
+
+/* --- Page Wrappers --- */
+/* Full-width containers that wrap module-container to prevent body background bleeding through */
+.concept-module-page,
+.submodule-page {
+  /* width: 100% handled by .main-content */
+  background-color: var(--color-oldlace);
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Expand to fill remaining height */
+}
+
+/* Wrapper for list pages - whitesmoke background */
+/* Wrapper for list pages - whitesmoke background */
+.learning-modules-page,
+.concept-modules-page {
+  /* width: 100% handled by .main-content */
+  background-color: var(--color-oldlace); /* Match design intent: cream background */
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Expand to fill remaining height */
+}
+
+.module-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-md);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  /* Restore original warm cream background */
+  background-color: var(--color-oldlace);
+  min-height: auto; /* Let content define the height for better small-screen behavior */
+}
+
+.module-header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.module-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--color-brand-dark);
+  margin-bottom: var(--spacing-sm);
+}
+
+.module-description {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* --- Navigation / Breadcrumbs --- */
+.module-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.module-breadcrumb a {
+  color: var(--color-steelblue-100);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.module-breadcrumb a:hover {
+  text-decoration: underline;
+  color: var(--color-deepskyblue);
+}
+
+.module-nav-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  /* Use gainsboro background to match original "component-parent"/wrapper style */
+  background-color: var(--color-gainsboro-100);
+  border-radius: var(--radius-md);
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-deepskyblue);
+  color: var(--color-white);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  min-width: 100px;
+}
+
+.nav-btn:hover {
+  background-color: var(--color-steelblue-200);
+  transform: translateY(-1px);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.nav-btn--secondary {
+  /* Match original "Previous" button style if it was same color, or adjust */
+  background-color: var(--color-deepskyblue);
+}
+
+/* --- Content Content --- */
+.module-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  background-color: var(--color-black);
+}
+
+.video-wrapper iframe,
+.video-wrapper object,
+.video-wrapper embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.description-box {
+  background-color: transparent;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-xl);
+  align-items: flex-start;
+}
+
+.description-text {
+  flex: 1;
+}
+
+.description-box h3,
+.description-title {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-brand-dark);
+}
+
+.description-paragraph {
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.module-thumbnail {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Progress List (ConceptModule/Submodules) --- */
+.progress-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl); /* Increased gap to match original look */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl); /* Larger gap between icon and text */
+  /* Removed card styling to match original "transparent" look on oldlace bg */
+  background-color: transparent;
+  padding: var(--spacing-xs);
+  box-shadow: none;
+  transition: transform var(--transition-fast);
+}
+
+.progress-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Original "Round" styling for the icon container */
+.progress-icon {
+  position: relative;
+  width: 65px;
+  height: 65px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--neutral-4);
+  box-shadow: 0 11.3px 11.29px rgba(0, 0, 0, 0.25) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-icon img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* Original had absolute positioning logic, but flex centering works better */
+}
+
+.progress-link {
+  flex-grow: 1;
+  text-decoration: none;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-steelblue-300); /* Match original text color */
+  text-align: left;
+}
+
+.progress-link:hover {
+  color: var(--color-deepskyblue);
+  text-decoration: underline;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .module-container {
+    padding: var(--spacing-sm);
+  }
+
+  .module-nav-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .nav-btn {
+    width: 100%;
+  }
+
+  .module-title {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+/* Phone-first refinements (e.g. iPhone 12 Pro 390x844) */
+@media (max-width: 480px) {
+  .module-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-lg); /* Reduce vertical gaps to avoid large empty bands */
+  }
+
+  .description-box {
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .progress-list {
+    gap: var(--spacing-md);
+  }
+}

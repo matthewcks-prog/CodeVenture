@@ -80,11 +80,28 @@ Update `.env` with:
 - `DJANGO_SECRET_KEY` – any random string for local dev.
 - `DJANGO_DEBUG` – `True` for local.
 - `DATABASE_URL` – usually leave blank to use SQLite locally.
+- `GOOGLE_OAUTH_CLIENT_ID` – Get from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+- `GOOGLE_OAUTH_CLIENT_SECRET` – Get from Google Cloud Console
 
-### 5. Apply migrations
+**Google OAuth Setup:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create OAuth 2.0 Client ID (Web application)
+3. Add authorized JavaScript origins:
+   - `http://localhost:8000`
+   - `https://codeventure-ez4m.onrender.com` (production)
+4. Add authorized redirect URIs:
+   - `http://localhost:8000/accounts/google/login/callback/`
+   - `https://codeventure-ez4m.onrender.com/accounts/google/login/callback/`
+5. Copy Client ID and Client Secret to `.env`
+
+### 5. Apply migrations and seed data
 
 ```bash
+# Apply database migrations
 python manage.py migrate
+
+# Create admin user and seed learning modules
+python manage.py seed_data --admin
 ```
 
 ### 6. Run the development server
@@ -94,6 +111,10 @@ python manage.py runserver
 ```
 
 Then visit `http://localhost:8000/` in your browser.
+
+**Access admin panel**: `http://localhost:8000/admin/`
+- Username: `admin`
+- Password: `superuser`
 
 ---
 
@@ -138,10 +159,12 @@ Render will automatically inject this into the app during build and runtime.
 
 Add these environment variables in the Render dashboard for the `codeventure` service:
 
-- `DJANGO_SECRET_KEY` – long random string.
-- `DJANGO_DEBUG` – `False`.
-- `DJANGO_ALLOWED_HOSTS` – e.g. `codeventure.onrender.com`.
-- `DJANGO_CSRF_TRUSTED_ORIGINS` – e.g. `https://codeventure.onrender.com`.
+- `DJANGO_SECRET_KEY` – long random string (generate with `python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`)
+- `DJANGO_DEBUG` – `False`
+- `DJANGO_ALLOWED_HOSTS` – e.g. `codeventure-ez4m.onrender.com`
+- `DJANGO_CSRF_TRUSTED_ORIGINS` – e.g. `https://codeventure-ez4m.onrender.com`
+- `GOOGLE_OAUTH_CLIENT_ID` – Your Google OAuth Client ID
+- `GOOGLE_OAUTH_CLIENT_SECRET` – Your Google OAuth Client Secret
 
 The `render.yaml` file configures:
 
@@ -169,29 +192,58 @@ Any failing checks should be reviewed; the current configuration aims to satisfy
 
 ---
 
+## Admin Access 👨‍💼
+
+### Creating Admin User
+
+To create an admin superuser, run:
+
+```bash
+python manage.py seed_data --admin
+```
+
+Default credentials:
+- **Username**: `admin`
+- **Password**: `superuser`
+- **Email**: `admin@codeventure.com`
+
+### Accessing Admin Panel
+
+**Local Development:**
+- Visit: `http://localhost:8000/admin/`
+- Login with admin credentials
+
+**Production (Render):**
+- Visit: `https://your-app-name.onrender.com/admin/`
+- Example: `https://codeventure-ez4m.onrender.com/admin/`
+
+> **Important**: Change the default admin password immediately after first login!
+
+### Seeding Sample Data
+
+To populate the database with learning modules:
+
+```bash
+# Seed only (requires existing admin user)
+python manage.py seed_data
+
+# Seed and create admin user
+python manage.py seed_data --admin
+
+# Clear and reseed everything
+python manage.py seed_data --admin --clear
+```
+
+This creates:
+- 3 learning modules (Basic Modules, Python Fundamentals, Web Development)
+- 8 submodules with video tutorials
+- Admin superuser account
+
+---
+
 ## Testing Instructions 🧪
 
-To thoroughly test the platform, four example user accounts are provided:
-
-- **Admin**
-  - Username: `admin`
-  - Password: `Codeventure2023`
-
-- **Student**
-  - Username: `studentaccount`
-  - Password: `Codeventure2023`
-
-- **Parent**
-  - Username: `parentaccount`
-  - Password: `Codeventure2023`
-
-- **Teacher**
-  - Username: `teacheraccount`
-  - Password: `Codeventure2023`
-
-> These example credentials are for demo environments only; do **not** reuse them in production.
-
-You can also run the automated test suite locally:
+You can run the automated test suite locally:
 
 ```bash
 pytest

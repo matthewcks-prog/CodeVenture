@@ -2,80 +2,73 @@
 {% load static %}
 
 {% block title %}
-    Basic Modules
+    {{ submodule.name }} | {{ submodule.parent_module.short_name }}
 {% endblock %}
 
 {% block css %}
+    <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/Submodules.css' %}"/>
-    <style>
-        .dynamic-video {
-            width: 64vw;
-            height: 36vw;
-        }
-        .button-style {
-            display: inline-block;
-            padding: 10px 20px; /* Adjust padding to your desired size */
-            background-color: #007bff; /* Change the background color to your preference */
-            color: #fff; /* Change the text color to your preference */
-            text-decoration: none;
-            border-radius: 5px; /* Rounded corners */
-        }
-    </style>
 {% endblock %}
 
 {% block css-container %}
-    submodules
+    submodule-page
 {% endblock %}
 
 {% block content %}
-    <div class="frame-parent1">
-        <div style="align-self: stretch;">
-            <div class="breadcrumb" style="padding-left: 15px; padding-bottom: 10px">
+    <div class="module-container">
+        
+        <header class="module-header">
+            <div class="module-breadcrumb">
                 <a href="{% url 'module_handler' %}">My courses</a> /
-                <a href="{% url 'concept_module' submodule.parent_module.id %}">{{ submodule.parent_module.short_name }}</a>
-                /
-                <a href="{% url 'lecture_view' submodule.id %}">{{ submodule.name }}</a>
+                <a href="{% url 'concept_module' submodule.parent_module.id %}">{{ submodule.parent_module.short_name }}</a> /
+                <span>{{ submodule.name }}</span>
             </div>
-            <div class="component-parent">
-                {% if submodule.prev_submodule %}
-                    <a href="{% url 'lecture_view' submodule.prev_submodule.id %}" class="previous-wrapper">
-                        <b class="previous">Previous</b>
-                    </a>
-                {% else %}
-                    <a href="{% url 'concept_module' submodule.parent_module.id %}" class="previous-wrapper">
-                        <b class="previous">Menu</b>
-                    </a>
-                {% endif %}
-                <b class="artificial-intelligence-">
-                    {{ submodule.parent_module.short_name }} - {{ submodule.name }}
-                </b>
-                {% if submodule.next_submodule %}
-                    <a href="{% url 'lecture_view' submodule.next_submodule.id %}?complete_current={{ submodule.id }}"
-                       class="previous-wrapper">
-                        <b class="previous">Next</b>
-                    </a>
-                {% else %}
-                    <a href="{% url 'lecture_view' submodule.id %}?complete_current={{ submodule.id }}"
-                       class="previous-wrapper">
-                        <b class="previous">Complete Module</b>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-        <iframe
-                class="dynamic-video"
-                src="https://www.youtube.com/embed/{{ submodule.video.video_id }}"
-                frameborder="0"
-                allowfullscreen
-        >
-        </iframe>
-        {% if submodule.description %}
-            <div class="description-wrapper">
-                <b class="description2">Description:</b>
-                <div class="description-text">{{ submodule.description }}</div>
-            </div>
-        {% endif %}
+            
+            <h1 class="module-title">{{ submodule.parent_module.short_name }} - {{ submodule.name }}</h1>
+        </header>
 
-     <a class="quiz-button button-style" href="{% url 'quiz_view' submodule.quiz.id %}">Take Quiz</a>
+        <nav class="module-nav-controls">
+            {% if submodule.prev_submodule %}
+                <a href="{% url 'lecture_view' submodule.prev_submodule.id %}" class="nav-btn nav-btn--secondary">
+                    &larr; Previous
+                </a>
+            {% else %}
+                <a href="{% url 'concept_module' submodule.parent_module.id %}" class="nav-btn nav-btn--secondary">
+                    Menu
+                </a>
+            {% endif %}
+
+            {% if submodule.next_submodule %}
+                <a href="{% url 'lecture_view' submodule.next_submodule.id %}?complete_current={{ submodule.id }}"
+                   class="nav-btn">
+                    Next &rarr;
+                </a>
+            {% else %}
+                <a href="{% url 'lecture_view' submodule.id %}?complete_current={{ submodule.id }}"
+                   class="nav-btn">
+                    Complete Module &rarr;
+                </a>
+            {% endif %}
+        </nav>
+
+        <div class="module-content">
+            <div class="video-wrapper">
+                {% include 'includes/youtube_player.html' with video=submodule.video css_class='video-embed' %}
+            </div>
+
+            {% if submodule.description %}
+                <div class="description-box">
+                    <h3>Description</h3>
+                    <div class="description-text">{{ submodule.description }}</div>
+                </div>
+            {% endif %}
+
+            {% if submodule.quiz %}
+                <div style="text-align: center; margin-top: 20px;">
+                    <a class="nav-btn" href="{% url 'quiz_view' submodule.quiz.id %}">Take Quiz</a>
+                </div>
+            {% endif %}
+        </div>
+
     </div>
 {% endblock %}

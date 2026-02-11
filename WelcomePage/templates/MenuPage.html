@@ -5,6 +5,11 @@
     menu-page
 {% endblock %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/MenuPage.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/feedback.css' %}" />
+{% endblock %}
+
 {% block content %}
     <div class="link-section">
         <div class="links6">
@@ -86,4 +91,6 @@
             {% endif %}
         </div>
     </div>
+
+    {% include 'includes/feedback_form.html' %}
 {% endblock %}

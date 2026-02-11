@@ -27,13 +27,26 @@ def _get_student_or_redirect(request):
 
 @login_required(login_url='/login/')
 def lecture_view(request, submodule_id):
-    submodule = get_object_or_404(SubModule, pk=submodule_id)
-    module = SubModule.parent_module
+    """
+    Display a single submodule (lesson) and optionally mark another as complete.
+
+    Raises clear 404 errors instead of the generic Django messages so tests
+    and users get more helpful feedback.
+    """
+    try:
+        submodule = SubModule.objects.get(pk=submodule_id)
+    except SubModule.DoesNotExist:
+        raise Http404("Submodule not found")
+
+    module = submodule.parent_module
 
     # Mark current submodule complete (if requested via query param)
     complete_submodule_id = request.GET.get('complete_current')
     if complete_submodule_id:
-        completed_sub = get_object_or_404(SubModule, pk=complete_submodule_id)
+        try:
+            completed_sub = SubModule.objects.get(pk=complete_submodule_id)
+        except SubModule.DoesNotExist:
+            raise Http404("Completed submodule not found")
 
         result = _get_student_or_redirect(request)
         if result is None:

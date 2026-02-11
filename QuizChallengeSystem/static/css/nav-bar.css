@@ -1,5 +1,10 @@
+/* 
+ * Supplementary styles for Quiz/Challenge pages
+ * Main navigation styles are in global.css (.site-nav component)
+ */
+
 body {
-    background-color: #f4f1de;
+    background-color: var(--color-surface-alt);
 }
 
 a:hover {

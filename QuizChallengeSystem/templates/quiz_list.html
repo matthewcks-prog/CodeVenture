@@ -6,31 +6,37 @@
 {% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/ConceptModule.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
 {% endblock %}
 
 {% block css-container %}
-    concept-module
+    concept-module-page
 {% endblock %}
 
 {% block content %}
-    <div class="sub-modules-overview-parent">
-        <div class="sub-modules-overview">
-            <b class="artificial-intelligence">{{ module.name }}</b>
-        </div>
-        <div class="progress-in-module">
-            <ol class="progress-in-module1">
+    <div class="module-container">
+        
+        <header class="module-header">
+            <div class="module-breadcrumb">
+                <a href="{% url 'module_handler' %}">My courses</a> /
+                <span>{{ module.short_name }} - Quizzes</span>
+            </div>
+            <h1 class="module-title">{{ module.name }}</h1>
+        </header>
+
+        <div class="module-content">
+            <ol class="progress-list">
                 {% for sub_module in sub_modules %}
-                    <div class="progress">
-                        {% if sub_module.quiz %}
-                            <li>
-                                <a class="ai-knowledge"
-                                   href="{% url 'quiz_summary' sub_module.quiz.id %}">
-                                    Quiz {{ forloop.counter }} - ({{ sub_module.quiz.name }})
-                                </a>
-                            </li>
-                        {% endif %}
-                    </div>
+                    {% if sub_module.quiz %}
+                        <li class="progress-item">
+                            <div class="progress-icon">
+                                <img src="{% static 'public/bicheck1.svg' %}" alt="Quiz icon"/>
+                            </div>
+                            <a class="progress-link" href="{% url 'quiz_summary' sub_module.quiz.id %}">
+                                Quiz {{ forloop.counter }} - {{ sub_module.quiz.name }}
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
             </ol>
         </div>

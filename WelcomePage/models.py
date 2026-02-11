@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Ticket(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tickets')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tickets', null=True, blank=True)
     fullname = models.CharField(max_length=255, verbose_name='Full Name')
     subject = models.CharField(max_length=255, verbose_name='Subject')
     message = models.TextField(verbose_name='Message')
@@ -14,11 +14,11 @@ class Ticket(models.Model):
 
     @property
     def username(self):
-        return self.user.username
+        return self.user.username if self.user else 'Anonymous'
 
     @property
     def email(self):
-        return self.user.email
+        return self.user.email if self.user else 'No email provided'
 
     class Meta:
         verbose_name = 'Ticket'

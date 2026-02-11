@@ -23,15 +23,12 @@
                         <a class="creat-file-2-parent" href="{% url 'lecture_view' sub_module.id %}">
                             <img
                                     class="creat-file-2"
-                                    alt="Thumbnail"
-                                    src="
-                                            {% if forloop.counter == 1 %}
-                                                {% static 'public/creat-file-2@2x.png' %}
-                                            {% elif forloop.counter == 2 %}
-                                                {% static 'public/creat-file-21@2x.png' %}
-                                            {% elif forloop.counter == 3 %}
-                                                {% static 'public/creat-file-22@2x.png' %}
-                                            {% endif %}"
+                                    alt="{{ sub_module.name }} thumbnail"
+                                    src="{% if sub_module.video and sub_module.video.thumbnail_url %}
+                                             {{ sub_module.video.thumbnail_url }}
+                                         {% else %}
+                                             https://via.placeholder.com/400x225?text=Video
+                                         {% endif %}"
                             />
                             <b class="basic-modules">{{ sub_module.name }}</b>
                         </a>

@@ -1,0 +1,131 @@
+{% load static %}
+{% if user.is_authenticated %}
+<div
+  id="profileMenuOverlay"
+  class="profile-menu-overlay"
+  aria-hidden="true"
+>
+  <div class="profile-menu" role="menu" aria-label="Profile actions">
+    <div class="profile-menu__header">
+      {% if user.socialaccount_set.all %}
+      <img
+        class="profile-menu__avatar"
+        alt="Profile Picture"
+        src="{{ user.socialaccount_set.all.0.get_avatar_url }}"
+      />
+      {% else %}
+      {# Role-based default profile pictures #}
+      {% if user.student %}
+      <img
+        class="profile-menu__avatar"
+        alt="Student Profile"
+        src="{% static 'public/student_profile_pic.jpg' %}"
+      />
+      {% elif user.parent %}
+      <img
+        class="profile-menu__avatar"
+        alt="Parent Profile"
+        src="{% static 'public/parent_profile_pic.jpg' %}"
+      />
+      {% elif user.is_staff or user.teacher %}
+      <img
+        class="profile-menu__avatar"
+        alt="Admin Profile"
+        src="{% static 'public/admin_profile_pic.png' %}"
+      />
+      {% else %}
+      {# Fallback for edge cases #}
+      <img
+        class="profile-menu__avatar"
+        alt="Default Profile"
+        src="{% static 'public/student_profile_pic.jpg' %}"
+      />
+      {% endif %}
+      {% endif %}
+
+      <div class="profile-menu__user">
+        <span class="profile-menu__greeting">Hello, {{ user.username }}</span>
+        {# Hard-coded blue link-style text per requirements #}
+        <span class="profile-menu__edit-link">Edit your profile</span>
+      </div>
+    </div>
+
+    <a
+      class="profile-menu__item"
+      href="{% url 'logout' %}"
+      role="menuitem"
+    >
+      <img
+        class="profile-menu__item-icon"
+        alt=""
+        src="{% static 'public/vector3.svg' %}"
+      />
+      <span class="profile-menu__item-label">Sign out</span>
+    </a>
+
+    {% if user.student %}
+    <a
+      class="profile-menu__item"
+      href="{% url 'download_report' user.student.id %}"
+      role="menuitem"
+    >
+      <img
+        class="profile-menu__item-icon"
+        alt=""
+        src="{% static 'public/download_icon.svg' %}"
+      />
+      <span class="profile-menu__item-label">Download Report</span>
+    </a>
+    {% elif user.parent %}
+    {% for child in user.parent.get_children %}
+    <a
+      class="profile-menu__item"
+      href="{% url 'download_report' child.user.id %}"
+      role="menuitem"
+    >
+      <img
+        class="profile-menu__item-icon"
+        alt=""
+        src="{% static 'public/download_icon.svg' %}"
+      />
+      <span class="profile-menu__item-label"
+        >Download Report for {{ child.full_name }}</span
+      >
+    </a>
+    {% endfor %}
+    {% elif user.teacher %}
+    {% for student in user.teacher.get_students %}
+    <a
+      class="profile-menu__item"
+      href="{% url 'download_report' student.id %}"
+      role="menuitem"
+    >
+      <img
+        class="profile-menu__item-icon"
+        alt=""
+        src="{% static 'public/download_icon.svg' %}"
+      />
+      <span class="profile-menu__item-label"
+        >Download Report for {{ student.full_name }}</span
+      >
+    </a>
+    {% endfor %}
+    {% endif %}
+
+    {% if user.is_staff %}
+    <a
+      class="profile-menu__item"
+      href="{% url 'admin:index' %}"
+      role="menuitem"
+    >
+      <img
+        class="profile-menu__item-icon"
+        alt=""
+        src="{% static 'public/vector4.svg' %}"
+      />
+      <span class="profile-menu__item-label">Admin</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}

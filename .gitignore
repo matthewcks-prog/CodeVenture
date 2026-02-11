@@ -162,3 +162,35 @@ cython_debug/
 
 
 *update_html_for_django_static.py
+
+# ------------------------------------------------------------------------------
+# Project-specific and additional tooling ignores
+# ------------------------------------------------------------------------------
+
+# Editor / IDE settings
+.vscode/
+.cursor/
+
+# OS-specific files (mostly for Windows/macOS users)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Node / frontend dependencies (if ever added)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Django collected static and media (generated artifacts)
+staticfiles/
+media/
+
+# SQLite databases (keep migrations under version control instead)
+*.sqlite3
+*.sqlite3-journal
+
+# Test / verification artifacts
+test_results.json
+verification_results.json

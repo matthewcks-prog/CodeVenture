@@ -1,56 +1,135 @@
-body {
-  margin: 0;
-  line-height: normal;
+/* Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-.popup-overlay {
+* {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.5;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background-color: var(--color-whitesmoke);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  inset: 0;
 }
 
-:root {
-  /* fonts */
-  --font-inter: Inter;
-  --font-mitr: Mitr;
-  --font-inherit: inherit;
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
 
-  /* font sizes */
-  --font-size-base: 16px;
-  --font-size-xl: 20px;
-  --font-size-5xl: 24px;
-  --font-size-9xl: 28px;
-  --font-size-lg: 18px;
-  --font-size-3xl: 22px;
-  --font-size-13xl: 32px;
-  --font-size-3xs: 10px;
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* CSS Variables */
+:root {
+  /* Fonts */
+  --font-inter: 'Inter', sans-serif;
+  --font-mitr: 'Mitr', sans-serif;
+
+  /* Font Sizes - Fluid Typography */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.35rem + 0.75vw, 1.875rem);
+  --font-size-3xl: clamp(1.875rem, 1.65rem + 1.125vw, 2.25rem);
+  --font-size-4xl: clamp(2.25rem, 2rem + 1.25vw, 3rem);
+
+  /* Legacy Font Sizes (for backward compatibility with existing CSS) */
+  --font-size-3xs: 0.625rem;          /* 10px */
+  --font-size-5xl: 1.5rem;            /* 24px */
+  --font-size-9xl: 1.75rem;           /* 28px */
+  --font-size-13xl: 2rem;             /* 32px */
 
   /* Colors */
-  --color-oldlace: #f4f1de;
-  --color-black: #000;
-  --color-gainsboro-100: #e2e2e2;
-  --color-gainsboro-200: #d9d9d9;
-  --color-gray-600: #8b7878;
-  --color-gray-400: rgba(255, 255, 255, 0.8);
-  --color-gray-500: rgba(0, 0, 0, 0.2);
-  --color-gray-100: rgba(0, 0, 0, 0.6);
-  --color-gray-200: rgba(0, 0, 0, 0.7);
-  --color-deepskyblue: #48a4e8;
-  --color-lavenderblush: #f9efef;
-  --color-darkseagreen: #81b29a;
-  --color-steelblue-100: #3292da;
-  --color-steelblue-200: #3483c0;
-  --color-steelblue-300: #00688d;
-  --neutral-grey: #717171;
-  --color-whitesmoke: #f5f5f5;
-  --neutral-4: #f0f0f0;
-  --color-darkslategray: #3d405b;
-  --color-darkslategray-100: #2c2d36;
-  --color-salmon: #e07a5f;
-  --color-white: #fff;
+  --color-primary: #3292da;
+  --color-primary-dark: #00688d;
+  --color-secondary: #e07a5f;
+  --color-accent: #81b29a;
 
-  /* Gaps */
+  --color-background: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f1de;
+
+  --color-text: #2c2d36;
+  --color-text-muted: #717171;
+  --color-text-light: #f9efef;
+
+  /* Extended Palette */
+  --color-brand-dark: #3d405b;
+  --color-gray-100: #e2e2e2;
+  --color-gray-200: #d9d9d9;
+  --color-gray-300: #8b7878;
+  --color-gray-400: rgba(255, 255, 255, 0.8);
+  --color-gray-600: #4a4a4a;
+
+  /* Learning Module Colors */
+  --color-oldlace: #fdf5e6;           /* Warm cream background */
+  --color-whitesmoke: #f5f5f5;        /* Light grey background */
+  --color-gainsboro-100: #dcdcdc;     /* Light grey for sections */
+  --color-gainsboro-200: #d9d9d9;     /* Slightly darker grey */
+  --color-darkslategray: #2f4f4f;     /* Dark teal-grey for navbar */
+  --color-deepskyblue: #00bfff;       /* Pale blue for buttons */
+  --color-steelblue-100: #4682b4;     /* Steel blue text */
+  --color-steelblue-200: #5a93c7;     /* Lighter steel blue hover */
+  --color-steelblue-300: #4682b4;     /* Steel blue for progress */
+  --color-darkseagreen: #8fbc8f;      /* Green for success/access buttons */
+  --color-salmon: #fa8072;            /* Salmon for hover states */
+  --color-lavenderblush: #fff0f5;     /* Very light pink for button text */
+  --color-link-blue: #065fd4;         /* Blue for profile/edit links */
+
+  /* Neutral Utility Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --neutral-4: #e0e0e0;               /* Neutral grey for unchecked items */
+
+  /* Layout Constants */
+  --navbar-height: 112px;             /* Standard navbar height for calculations */
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+
+  /* Legacy Spacing (To be refactored) */
+
   --gap-31xl: 50px;
   --gap-81xl: 100px;
   --gap-71xl: 90px;
@@ -70,7 +149,6 @@ body {
   --gap-xs: 12px;
   --gap-72xl: 91px;
 
-  /* Paddings */
   --padding-mini: 15px;
   --padding-31xl: 50px;
   --padding-81xl: 100px;
@@ -90,7 +168,6 @@ body {
   --padding-11xs: 2px;
   --padding-29xl: 48px;
 
-  /* Border radiuses */
   --br-mini: 15px;
   --br-11xl: 30px;
   --br-3xs: 10px;
@@ -100,4 +177,295 @@ body {
   --br-25xl-8: 44.8px;
   --br-7xs: 6px;
   --br-25xl: 44px;
+}
+
+/* Utilities */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--spacing-md);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =============================================
+   Shared Site Nav Component (BEM)
+   Used by: WelcomePage, Login, SignUp, SelectRole
+   ============================================= */
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--color-brand-dark);
+  color: var(--color-surface-alt);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.site-nav__logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.site-nav__logo-img {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Nav link buttons (Login / Sign Up) */
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.site-nav__link:active {
+  transform: scale(0.98);
+}
+
+.site-nav__link--outline {
+  color: var(--color-surface-alt);
+  border: 2px solid var(--color-surface-alt);
+  background-color: transparent;
+}
+
+.site-nav__link--outline:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-brand-dark);
+}
+
+.site-nav__link--primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: 2px solid var(--color-primary);
+}
+
+.site-nav__link--primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* Authenticated nav: inline page links */
+.site-nav__links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.site-nav__nav-link {
+  text-decoration: none;
+  color: var(--color-surface-alt);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.site-nav__nav-link:hover {
+  color: var(--color-secondary);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Authenticated nav: mobile hamburger menu button (hidden on desktop) */
+.site-nav__menu-btn {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+  display: none;            /* Hidden on desktop */
+  width: 48px;
+  height: 36px;
+  position: relative;
+}
+
+.site-nav__menu-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Authenticated nav: profile pic button */
+.site-nav__profile-btn {
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
+.site-nav__profile-img {
+  border-radius: var(--radius-full);
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  transition: box-shadow var(--transition-fast);
+}
+
+.site-nav__profile-img:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- Responsive: tablet ---- */
+@media screen and (max-width: 960px) {
+  .site-nav__links {
+    display: none;          /* Hide nav links on tablets / phones */
+  }
+
+  .site-nav__menu-btn {
+    display: block;         /* Show hamburger on smaller screens */
+  }
+}
+
+/* ---- Responsive: phone ---- */
+@media screen and (max-width: 480px) {
+  .site-nav {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .site-nav__logo-img {
+    height: 60px;
+  }
+
+  .site-nav__link {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .site-nav__profile-img {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* =============================================
+   Component Styles
+   ============================================= */
+
+/* Profile dropdown overlay & panel (anchored top-right) */
+.profile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none; /* Toggled via JS by adding --open modifier */
+  background: transparent;
+}
+
+.profile-menu-overlay.profile-menu-overlay--open {
+  display: block;
+}
+
+.profile-menu {
+  position: absolute;
+  top: calc(var(--navbar-height) - 12px);
+  right: var(--spacing-xl);
+  width: min(360px, 92vw);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-family: var(--font-inter);
+  color: var(--color-text);
+}
+
+@media screen and (max-width: 480px) {
+  .profile-menu {
+    top: calc(var(--navbar-height) - 8px);
+    right: var(--spacing-md);
+    width: min(320px, 96vw);
+    padding-inline: var(--spacing-md);
+  }
+}
+
+.profile-menu__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-gainsboro-200);
+}
+
+.profile-menu__avatar {
+  border-radius: var(--radius-full);
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-menu__user {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.profile-menu__greeting {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.profile-menu__edit-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-link-blue);
+  cursor: default; /* Hard-coded, non-clickable per requirements */
+}
+
+.profile-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.profile-menu__item:hover {
+  color: var(--color-primary);
+}
+
+.profile-menu__item-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.profile-menu__item-label {
+  font-size: var(--font-size-base);
 }
