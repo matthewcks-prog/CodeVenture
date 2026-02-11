@@ -18,7 +18,7 @@ Unified Navbar Component
 
   {% if user.is_authenticated %} {# ====== Authenticated state ====== #}
   <div class="site-nav__actions">
-    {# --- Role-based navigation links --- #}
+    {# --- Role-based navigation links (desktop) --- #}
     <div class="site-nav__links">
       {% if user.parent or user.teacher %}
       <a class="site-nav__nav-link" href="{% url 'parent_progress_tracker' %}"
@@ -48,6 +48,9 @@ Unified Navbar Component
       class="site-nav__menu-btn"
       id="menuToggle"
       aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="mobileNav"
+      type="button"
     >
       <img
         class="site-nav__menu-icon"
@@ -57,7 +60,7 @@ Unified Navbar Component
     </button>
 
     {# --- Profile picture button (opens dropdown) --- #}
-    <button class="site-nav__profile-btn" id="profilePic">
+    <button class="site-nav__profile-btn" id="profilePic" type="button">
       {% if user.socialaccount_set.all %}
       <img
         class="site-nav__profile-img"
@@ -94,6 +97,83 @@ Unified Navbar Component
       {% endif %}
       {% endif %}
     </button>
+  </div>
+
+  {# ====== Mobile navigation overlay (hamburger menu) ====== #}
+  <div
+    class="site-nav__mobile-overlay"
+    id="mobileNavOverlay"
+    aria-hidden="true"
+  >
+    <div
+      class="site-nav__mobile-panel"
+      id="mobileNav"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Main menu"
+    >
+      <div class="site-nav__mobile-header">
+        <span class="site-nav__mobile-title">Menu</span>
+        <button
+          class="site-nav__mobile-close"
+          id="mobileNavClose"
+          type="button"
+          aria-label="Close navigation menu"
+        >
+          &times;
+        </button>
+      </div>
+
+      <nav class="site-nav__mobile-nav" aria-label="Primary">
+        <ul class="site-nav__mobile-list">
+          {% if user.parent or user.teacher %}
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'parent_progress_tracker' %}"
+              >Progress Tracker</a
+            >
+          </li>
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'modules_list_quiz' %}"
+              >Quiz Results</a
+            >
+          </li>
+          {% else %}
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'module_handler' %}"
+              >Learning Modules</a
+            >
+          </li>
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'modules_list_quiz' %}"
+              >Quizzes</a
+            >
+          </li>
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'challenges_list' %}"
+              >Challenges</a
+            >
+          </li>
+          <li class="site-nav__mobile-item">
+            <a
+              class="site-nav__mobile-link"
+              href="{% url 'playground' %}"
+              >Python Playground</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
   </div>
 
   {% else %} {# ====== Unauthenticated state ====== #}

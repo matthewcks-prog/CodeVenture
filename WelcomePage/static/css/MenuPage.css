@@ -32,7 +32,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: var(--gap-xs);
+  gap: var(--spacing-sm);
 }
 .learning-modules10 {
   align-self: stretch;
@@ -40,7 +40,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-131xl);
+  gap: var(--spacing-3xl);
 }
 .modulelearning-11,
 .modulelearning-12,
@@ -65,11 +65,11 @@
   justify-content: flex-start;
 }
 .links6 {
-  gap: var(--gap-51xl);
+  gap: var(--spacing-3xl);
 }
 .link-section {
   background-color: var(--color-surface-alt);
-  padding: 113px 160px;
+  padding: var(--spacing-3xl) var(--spacing-4xl);
   width: 100%;
 }
 .menu-page {
@@ -89,7 +89,7 @@
   .link-section {
     align-self: stretch;
     width: 100%;
-    padding: var(--padding-61xl) 5% var(--padding-61xl) 5%;
+    padding: var(--spacing-3xl) 5% var(--spacing-3xl) 5%;
     box-sizing: border-box;
   }
   .menu-page {
@@ -110,13 +110,13 @@
   }
   .learning-modules10 {
     flex-direction: column;
-    gap: var(--gap-11xl);
+    gap: var(--spacing-xl);
   }
   .links6 {
-    gap: var(--gap-81xl);
+    gap: var(--spacing-3xl);
   }
   .link-section {
-    padding: var(--padding-61xl) var(--padding-31xl);
+    padding: var(--spacing-3xl) var(--spacing-xl);
     box-sizing: border-box;
     width: 100%;
   }
@@ -130,7 +130,7 @@
 @media screen and (max-width: 420px) {
   .link-section {
     display: flex;
-    padding: var(--padding-31xl) var(--spacing-md);
+    padding: var(--spacing-xl) var(--spacing-md);
     box-sizing: border-box;
     width: 100%;
   }

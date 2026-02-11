@@ -7,7 +7,6 @@
 
 {% block css %}
     <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/nav-bar.css' %}"/>
 {% endblock %}
 
 {% block css-container %}
@@ -20,13 +19,22 @@
             <h1 class="module-title">Challenge List</h1>
         </header>
         <div class="module-content">
-            <ul>
+            <ol class="progress-list">
                 {% for challenge in challenges %}
-                    <li><a href="{% url 'challenge' challenge.id %}">{{ challenge.name }}</a></li>
+                    <li class="progress-item">
+                        <div class="progress-icon">
+                             <img src="{% static 'public/bicheck1.svg' %}" alt="Challenge icon"/>
+                        </div>
+                        <a class="progress-link" href="{% url 'challenge' challenge.id %}">
+                            {{ challenge.name }}
+                        </a>
+                    </li>
                 {% empty %}
-                    <li>No challenges available.</li>
+                    <li class="progress-item">
+                        <span class="progress-link">No challenges available.</span>
+                    </li>
                 {% endfor %}
-            </ul>
+            </ol>
         </div>
     </div>
 {% endblock %}

@@ -64,4 +64,75 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Mobile Navigation (Hamburger) Toggle
+  const menuToggle = document.getElementById("menuToggle");
+  const mobileNavOverlay = document.getElementById("mobileNavOverlay");
+  const mobileNavClose = document.getElementById("mobileNavClose");
+
+  if (menuToggle && mobileNavOverlay) {
+    const MOBILE_OPEN_CLASS = "site-nav__mobile-overlay--open";
+
+    const setExpanded = (expanded) => {
+      menuToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+      mobileNavOverlay.setAttribute("aria-hidden", expanded ? "false" : "true");
+    };
+
+    const openMobileNav = () => {
+      mobileNavOverlay.classList.add(MOBILE_OPEN_CLASS);
+      setExpanded(true);
+    };
+
+    const closeMobileNav = () => {
+      mobileNavOverlay.classList.remove(MOBILE_OPEN_CLASS);
+      setExpanded(false);
+    };
+
+    const isMobileNavOpen = () =>
+      mobileNavOverlay.classList.contains(MOBILE_OPEN_CLASS);
+
+    menuToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (isMobileNavOpen()) {
+        closeMobileNav();
+      } else {
+        openMobileNav();
+      }
+    });
+
+    if (mobileNavClose) {
+      mobileNavClose.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (isMobileNavOpen()) {
+          closeMobileNav();
+        }
+      });
+    }
+
+    // Close when clicking outside the panel
+    mobileNavOverlay.addEventListener("click", (event) => {
+      if (event.target === mobileNavOverlay && isMobileNavOpen()) {
+        closeMobileNav();
+      }
+    });
+
+    // Close when a menu link is activated
+    const mobileLinks = mobileNavOverlay.querySelectorAll(
+      ".site-nav__mobile-link",
+    );
+    mobileLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        if (isMobileNavOpen()) {
+          closeMobileNav();
+        }
+      });
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && isMobileNavOpen()) {
+        closeMobileNav();
+      }
+    });
+  }
 });

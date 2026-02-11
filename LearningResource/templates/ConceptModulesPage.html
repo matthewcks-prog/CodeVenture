@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block css %}
+    <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/ConceptModulesPage.css' %}"/>
 {% endblock %}
 
@@ -23,10 +24,13 @@
                     {% for module_progress in group %}
                         {% if module_progress %}
                             <div class="frame-parent3">
-                                <a class="image-10-parent" href="{% url 'concept_module' module_progress.module.id %}">
-                                    <img class="image-10-icon" alt="Thumbnail"
-                                         src="{{ module_progress.module.thumbnail }}"/>
-                                    <b class="unit-functions">{{ module_progress.module.short_name }}</b>
+                                <a class="module-card" href="{% url 'concept_module' module_progress.module.id %}">
+                                    <div class="module-card__thumbnail">
+                                        <img class="module-card__thumbnail-img"
+                                             alt="{{ module_progress.module.short_name }} thumbnail"
+                                             src="{{ module_progress.module.thumbnail }}"/>
+                                    </div>
+                                    <b class="unit-functions module-card__title">{{ module_progress.module.short_name }}</b>
                                 </a>
                                 <div class="progress-bar"
                                      {% if module_progress.progress == 0 %}style="background-color: #00000000"{% endif %}
@@ -45,7 +49,7 @@
         </div>
 
         <div class="access-to-concept">
-                <b class="basic-modules">Access to basic modules :</b>
+                <b class="module-nav-text">Access to basic modules</b>
                 <a class="concept-modules-button" href="{% url 'learning_modules' %}">
                     <b class="concept-modules1">Basic modules</b>
                 </a>

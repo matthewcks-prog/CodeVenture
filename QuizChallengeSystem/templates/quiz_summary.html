@@ -6,59 +6,71 @@
 {% endblock %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static 'css/ConceptModulesPage.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/QuizSummary.css' %}"/>
 {% endblock %}
 
 {% block css-container %}
-    concept-modules-page
+    concept-module-page
 {% endblock %}
 
 {% block content %}
-    <div class="summary-background">
-        <div class="breadcrumb">
-            <a href="{% url 'module_handler' %}">My courses</a> /
-            <a href="{% url 'concept_module' module.id %}">{{ module.short_name }}</a> /
-            <a href="{% url 'quiz_list' module.id %}">Quiz</a> /
-            <a href="#">{{ quiz.name }}</a>
-        </div>
-        <div class="summary-parent">
-            <h3>{{ quiz.name }}</h3>
-            <p class="centered-info">This quiz closed on {{ quiz.deadline|date:"l, d F Y, h:i A" }}</p>
-            <p class="centered-info">Grading method: Highest score</p>
+    <div class="module-container">
 
-            <h2>Summary of your previous attempts</h2>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th class="centered-header">Attempt</th>
-                    <th>State</th>
-                    <th class="centered-header">Score</th>
-                    <th class="centered-header">Review</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for attempt in attempts %}
-                    <tr>
-                        <td class="centered-header">{{ forloop.counter }}</td>
-                        <td>Submitted {{ attempt.created_at|date:"l, d F Y, h:i A" }}</td>
-                        <td class="centered-header">{{ attempt.score }}/{{ attempt.total_questions }}</td>
-                        <td class="centered-header"><a href="{% url 'quiz_result' attempt.id %}">Review</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <header class="module-header">
+            <div class="module-breadcrumb">
+                <a href="{% url 'module_handler' %}">My courses</a> /
+                <a href="{% url 'concept_module' module.id %}">{{ module.short_name }}</a> /
+                <a href="{% url 'quiz_list' module.id %}">Quiz</a> /
+                <span>{{ quiz.name }}</span>
+            </div>
+            <h1 class="module-title">{{ module.name }}</h1>
+        </header>
 
-            <h3>Highest score: {{ best_score }}/{{ attempts.first.total_questions }}</h3>
-            {% if user.student %}
-                {% if quiz.deadline > now %}
-                    <div class="d-flex justify-content-center mt-3">
-                        <a href="{% url 'start_new_attempt' quiz.id %}" class="btn btn-primary">Re-attempt quiz</a>
-                    </div>
-                {% else %}
-                    <div style="text-align: center; font-size: 16px">No more attempts are allowed</div>
+        <div class="module-content">
+            <section class="quiz-summary">
+                <h2 class="quiz-summary__title">{{ quiz.name }}</h2>
+                <p class="centered-info">This quiz closed on {{ quiz.deadline|date:"l, d F Y, h:i A" }}</p>
+                <p class="centered-info">Grading method: Highest score</p>
+
+                <h3 class="quiz-summary__subtitle">Summary of your previous attempts</h3>
+                <div class="table-responsive">
+                    <table class="summary-table">
+                        <thead>
+                        <tr>
+                            <th class="text-center">Attempt</th>
+                            <th>State</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-center">Review</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for attempt in attempts %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>Submitted {{ attempt.created_at|date:"l, d F Y, h:i A" }}</td>
+                                <td class="text-center">{{ attempt.score }}/{{ attempt.total_questions }}</td>
+                                <td class="text-center"><a href="{% url 'quiz_result' attempt.id %}">Review</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="quiz-summary__highest-score">
+                    Highest score: {{ best_score }}/{{ attempts.first.total_questions }}
+                </h3>
+
+                {% if user.student %}
+                    {% if quiz.deadline > now %}
+                        <div class="d-flex mt-3">
+                            <a href="{% url 'start_new_attempt' quiz.id %}" class="btn btn-primary">Re-attempt quiz</a>
+                        </div>
+                    {% else %}
+                        <div style="text-align: center; font-size: 16px">No more attempts are allowed</div>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+            </section>
         </div>
     </div>
 {% endblock %}

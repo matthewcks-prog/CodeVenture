@@ -26,8 +26,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 50px var(--spacing-md);
-  gap: var(--gap-51xl);
+  padding-block: var(--spacing-3xl);
+  padding-inline: var(--page-padding-x);
+  gap: var(--spacing-3xl);
   flex: 1; /* Fill remaining height */
 }
 
@@ -37,6 +38,13 @@
   color: var(--color-black);
 }
 
+.module-nav-text {
+  position: relative;
+  font-size: var(--font-size-xl);
+  color: var(--color-black);
+  text-align: center;
+}
+
 /* --- Module Grid Layout --- */
 .frame-parent2 {
   align-self: stretch;
@@ -44,7 +52,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-51xl);
+  gap: var(--spacing-3xl);
   font-size: var(--font-size-5xl);
   color: var(--color-black);
 }
@@ -55,7 +63,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-20xl);
+  gap: var(--spacing-2xl);
   flex-wrap: wrap;
 }
 
@@ -64,42 +72,10 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: var(--gap-3xl);
+  gap: var(--spacing-lg);
 }
 
 /* --- Module Cards --- */
-.image-10-parent {
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: var(--gap-xl);
-  color: inherit;
-  transition: transform var(--transition-fast);
-}
-
-.image-10-parent:hover {
-  cursor: pointer;
-  transform: translateY(-4px);
-}
-
-.image-10-icon,
-.image-10-icon1 {
-  position: relative;
-  width: 357px;
-  max-width: 100%;
-  height: 205px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-}
-
-.image-10-icon:hover,
-.unit-functions:hover {
-  cursor: pointer;
-}
-
 .unit-functions {
   position: relative;
 }
@@ -163,7 +139,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-mini);
+  gap: var(--spacing-md);
   text-align: center;
   font-size: var(--font-size-9xl);
   color: var(--color-black);
@@ -212,7 +188,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--padding-mini) 0;
+  padding: var(--spacing-md) 0;
   text-align: center;
   font-size: var(--font-size-base);
   color: var(--color-black);
@@ -251,13 +227,6 @@
     padding: var(--spacing-xl) var(--spacing-sm);
   }
 
-  .image-10-icon,
-  .image-10-icon1 {
-    width: 100%;
-    max-width: 357px;
-    height: auto;
-  }
-
   /* Ensure the progress bar scales nicely under smaller images */
   .progress-bar {
     max-width: 220px;
@@ -266,6 +235,10 @@
   .concept-modules-button {
     max-width: 100%;
     padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .module-nav-text {
+    font-size: var(--font-size-lg);
   }
 }
 

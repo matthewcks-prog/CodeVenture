@@ -21,12 +21,13 @@
 .links4 {
   align-self: stretch;
   background-color: var(--color-oldlace);
-  padding: var(--padding-41xl) var(--spacing-md);
+  padding-block: var(--spacing-3xl);
+  padding-inline: var(--page-padding-x);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-51xl);
+  gap: var(--spacing-3xl);
   flex: 1; /* Fill remaining height */
 }
 
@@ -37,13 +38,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-31xl);
+  gap: var(--spacing-2xl);
 }
 
 .basic-modules {
   position: relative;
   font-size: var(--font-size-13xl);
   color: var(--color-black);
+}
+
+.module-nav-text {
+  position: relative;
+  font-size: var(--font-size-xl);
+  color: var(--color-black);
+  text-align: center;
 }
 
 /* --- Module Grid --- */
@@ -63,33 +71,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-mini);
-}
-
-.creat-file-2-parent {
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--gap-6xl);
-  cursor: pointer;
-  color: inherit;
-  transition: transform var(--transition-fast);
-}
-
-.creat-file-2-parent:hover {
-  transform: translateY(-4px);
-}
-
-.creat-file-2 {
-  position: relative;
-  width: 373px;
-  max-width: 100%;
-  height: 191px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  gap: var(--spacing-md);
 }
 
 /* --- Progress Indicators --- */
@@ -101,7 +83,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  gap: var(--gap-3xs);
+  gap: var(--spacing-sm);
 }
 
 .round-child8 {
@@ -133,7 +115,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--gap-mini);
+  gap: var(--spacing-md);
   text-align: center;
   font-size: var(--font-size-9xl);
   color: var(--color-black);
@@ -178,7 +160,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--padding-mini) 0;
+  padding: var(--spacing-md) 0;
   text-align: center;
   font-size: var(--font-size-base);
   color: var(--color-black);
@@ -195,7 +177,7 @@
 @media screen and (max-width: 1200px) {
   .modules {
     flex-direction: column;
-    gap: var(--gap-31xl);
+    gap: var(--spacing-2xl);
   }
 }
 
@@ -210,14 +192,12 @@
     padding: var(--spacing-xl) var(--spacing-sm);
   }
 
-  .creat-file-2 {
-    width: 100%;
-    max-width: 373px;
-    height: auto;
-  }
-
   .concept-modules-button {
     max-width: 100%;
     padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .module-nav-text {
+    font-size: var(--font-size-lg);
   }
 }

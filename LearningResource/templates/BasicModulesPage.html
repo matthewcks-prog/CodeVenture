@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block css %}
+    <link rel="stylesheet" href="{% static 'css/ModulesCommon.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/BasicModulesPage.css' %}"/>
 {% endblock %}
 
@@ -20,17 +21,19 @@
             <div class="modules">
                 {% for sub_module in module_progress.module.sub_modules.all %}
                     <div class="module">
-                        <a class="creat-file-2-parent" href="{% url 'lecture_view' sub_module.id %}">
-                            <img
-                                    class="creat-file-2"
-                                    alt="{{ sub_module.name }} thumbnail"
-                                    src="{% if sub_module.video and sub_module.video.thumbnail_url %}
-                                             {{ sub_module.video.thumbnail_url }}
-                                         {% else %}
-                                             https://via.placeholder.com/400x225?text=Video
-                                         {% endif %}"
-                            />
-                            <b class="basic-modules">{{ sub_module.name }}</b>
+                        <a class="module-card module-card--centered" href="{% url 'lecture_view' sub_module.id %}">
+                            <div class="module-card__thumbnail">
+                                <img
+                                        class="module-card__thumbnail-img"
+                                        alt="{{ sub_module.name }} thumbnail"
+                                        src="{% if sub_module.video and sub_module.video.thumbnail_url %}
+                                                 {{ sub_module.video.thumbnail_url }}
+                                             {% else %}
+                                                 https://via.placeholder.com/400x225?text=Video
+                                             {% endif %}"
+                                />
+                            </div>
+                            <b class="basic-modules module-card__title">{{ sub_module.name }}</b>
                         </a>
                         <div class="round10">
                             <div class="round-child8"></div>
@@ -46,7 +49,7 @@
         </div>
         <div class="access-to-concept">
             {% if module_progress.is_completed %}
-                <b class="basic-modules">Access to concept modules :</b>
+                <b class="module-nav-text">Access to concept modules</b>
                 <a class="concept-modules-button" href="{% url 'concept_modules' %}">
                     <b class="concept-modules1">Concept modules</b>
                 </a>
