@@ -39,8 +39,9 @@
 - **Static Files**: Django staticfiles + WhiteNoise
 - **Testing/CI**: `pytest`, `pytest-django`, GitHub Actions
 
-For a detailed list of functional requirements and implemented features, see:  
-[Documents/Main features implemented for Code Venture.pdf](Documents/Main%20features%20implemented%20for%20Code%20Venture.pdf)
+For more detailed architecture notes, see the `docs/` folder:
+
+- [CSS Architecture](docs/CSS_ARCHITECTURE.md)
 
 ---
 
