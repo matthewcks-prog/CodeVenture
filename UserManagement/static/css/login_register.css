@@ -58,24 +58,39 @@
 .btn-google {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  justify-content: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: #4285F4;
-  color: white;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  transition: background-color var(--transition-fast);
+  background-color: white;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 4px; /* Google standard radius */
+  font-family: 'Inter', sans-serif; /* Ensure clean font */
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  width: 100%; /* Full width in container */
+  box-sizing: border-box;
 }
 
 .btn-google:hover {
-  background-color: #357ABD;
+  background-color: #f7f8f8;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  border-color: #d2e3fc;
+}
+
+.btn-google:active {
+  background-color: #eff2f5;
 }
 
 .btn-google img {
   width: 20px;
   height: 20px;
-  display: inline-block;
+  display: block; /* Remove inline-block spacing issues */
 }
+
+
 
 /* --- Input Groups --- */
 .input-group {

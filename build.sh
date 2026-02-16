@@ -28,6 +28,10 @@ python manage.py migrate --noinput
 echo "===> Configuring site record..."
 python manage.py setup_site
 
+# Ensure Google OAuth SocialApp is configured (required for OAuth callbacks)
+echo "===> Configuring Google OAuth SocialApp..."
+python manage.py setup_google_oauth
+
 # Seed curriculum (learning modules, submodules, CPE assessments). Idempotent; safe on every deploy.
 echo "===> Seeding curriculum data..."
 python manage.py seed_data

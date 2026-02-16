@@ -104,10 +104,20 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-# Google OAuth — configured entirely via environment variables.
-# When credentials are present, allauth uses settings-based config (no DB
-# SocialApp record needed). When absent, the Google login button is hidden
-# in templates via the `google_oauth_configured` context variable.
+# Google OAuth — configured via environment variables and database.
+#
+# IMPORTANT: django-allauth requires BOTH:
+# 1. Settings-based configuration (below) - provides credentials
+# 2. Database SocialApp record - links provider to Site
+#
+# The SocialApp record is created/updated automatically during build via
+# `python manage.py setup_google_oauth`. This command ensures the SocialApp
+# exists and is linked to the correct Site (SITE_ID).
+#
+# When credentials are present, allauth uses settings-based config for
+# authentication, but still requires the SocialApp database record.
+# When absent, the Google login button is hidden in templates via the
+# `google_oauth_configured` context variable.
 #
 # Authorised redirect URI in Google Cloud Console must be the callback URL
 # (see CodeVenture.auth_config.GOOGLE_OAUTH_CALLBACK_PATH and docs/OAUTH_AND_GOOGLE.md).
@@ -215,8 +225,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Auth redirects
 # ---------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
 
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
 

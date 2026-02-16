@@ -12,10 +12,10 @@
     <div class="social-login center-text">
       <a href="{% url 'google_login' %}" class="btn-google no-underline">
         <img
-          src="https://cdn-icons-png.flaticon.com/512/2504/2504739.png"
-          alt="GOOGLE"
+          src="{% static 'img/google_logo.svg' %}"
+          alt="Google"
         />
-        Google
+        <span>Sign in with Google</span>
       </a>
     </div>
     {% endif %}

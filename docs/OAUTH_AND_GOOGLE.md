@@ -1,6 +1,11 @@
 # Google OAuth (django-allauth)
 
-This document is the **single source of truth** for Google OAuth setup. Misconfiguring redirect URIs causes **Error 400: redirect_uri_mismatch** in production while local may still work.
+This document is the **single source of truth** for Google OAuth setup. 
+
+## Common Errors
+
+- **Error 400: redirect_uri_mismatch** - Misconfiguring redirect URIs causes this in production while local may still work.
+- **Error 500 on callback** - Missing SocialApp database record. django-allauth requires a SocialApp record even when using settings-based configuration.
 
 ## Why redirect_uri_mismatch happens
 
@@ -50,6 +55,31 @@ The callback path is defined once in the codebase:
 
 Use these when adding a new environment or validating Console settings.
 
+## Database Configuration
+
+**IMPORTANT:** django-allauth requires a `SocialApp` database record even when using settings-based configuration. The settings provide credentials, but the database record links the provider to your Site.
+
+The SocialApp is automatically created/updated during deployment via:
+```bash
+python manage.py setup_google_oauth
+```
+
+This command:
+1. Creates or updates the Google SocialApp record
+2. Links it to the Site (SITE_ID = 1)
+3. Updates credentials from environment variables
+4. Validates the configuration
+
+**Manual setup:** If you need to run this manually:
+```bash
+python manage.py setup_google_oauth
+```
+
+For local development without credentials:
+```bash
+python manage.py setup_google_oauth --skip-if-missing-creds
+```
+
 ## Environment variables
 
 - **GOOGLE_OAUTH_CLIENT_ID** – OAuth client ID from Google Cloud Console.
@@ -64,6 +94,24 @@ When these are set, the app shows “Sign in with Google”; when either is miss
 2. Add **Authorised redirect URI:** `https://<your-domain>/accounts/google/login/callback/` (must include `/callback/`).
 3. Set **DJANGO_SITE_DOMAIN** to `<your-domain>` in that environment (for production).
 4. Set **GOOGLE_OAUTH_CLIENT_ID** and **GOOGLE_OAUTH_CLIENT_SECRET** (same client can list multiple redirect URIs).
+5. Ensure **SocialApp database record exists** - This is handled automatically by `build.sh` via `setup_google_oauth` command. If deploying manually, run `python manage.py setup_google_oauth` after migrations.
+
+## Troubleshooting
+
+### Error 500 on `/accounts/google/login/callback/`
+
+**Root cause:** Missing or misconfigured SocialApp database record.
+
+**Solution:**
+1. Verify the SocialApp exists: Check Django admin → Social Applications
+2. Ensure it's linked to Site ID 1: The SocialApp must be associated with your Site
+3. Run setup command: `python manage.py setup_google_oauth`
+4. Check logs: Look for errors about missing SocialApp or Site linkage
+
+**Common issues:**
+- SocialApp exists but not linked to Site → Run `setup_google_oauth`
+- Site doesn't exist → Run `python manage.py setup_site` first
+- Credentials mismatch → Run `setup_google_oauth` to sync from environment variables
 
 ## Related docs
 
