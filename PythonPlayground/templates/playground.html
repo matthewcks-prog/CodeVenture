@@ -33,7 +33,16 @@
     <!-- Monaco Editor Scripts -->
     <script src="{% static 'package/min/vs/loader.js' %}"></script>
     <script>
-        require.config({paths: {'vs': '{% static 'package/min/vs' %}'}});
+        // Dynamically determine the base path for 'vs' directory based on loader.js path
+        // This avoids issues where {% static 'directory' %} might fail or return different paths in production
+        var loaderUrl = "{% static 'package/min/vs/loader.js' %}";
+        var vsPath = loaderUrl.substring(0, loaderUrl.lastIndexOf('/loader.js'));
+        if (vsPath.endsWith('/vs')) {
+             // vsPath is correct
+        } else {
+             // fallback or adjustment if needed, but usually loader is inside vs
+        }
+        require.config({paths: {'vs': vsPath}});
     </script>
     <script src="{% static 'package/min/vs/editor/editor.main.js' %}"></script>
 

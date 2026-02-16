@@ -70,7 +70,16 @@ class Command(BaseCommand):
 
     def _ensure_socialapp(self, client_id: str, client_secret: str):
         """
-        Ensure SocialApp exists and is properly configured.
+        Ensure the Google SocialApp exists in a canonical, de-duplicated form.
+
+        This method is intentionally defensive to avoid production 500s caused
+        by misconfigured or duplicate SocialApp records (which surface as
+        django.core.exceptions.MultipleObjectsReturned inside django-allauth).
+
+        Invariants enforced for the current SITE_ID:
+        - Exactly one SocialApp is linked to the Site for provider='google'
+        - That SocialApp has credentials matching the environment variables
+        - Any duplicate records linked to the same Site are de-duplicated
 
         Args:
             client_id: Google OAuth client ID from environment
@@ -79,33 +88,65 @@ class Command(BaseCommand):
         from allauth.socialaccount.models import SocialApp
         from django.contrib.sites.models import Site
 
-        # Get or create the Site
+        # ------------------------------------------------------------------
+        # Resolve Site for current environment
+        # ------------------------------------------------------------------
         try:
             site = Site.objects.get(pk=settings.SITE_ID)
-        except Site.DoesNotExist:
+        except Site.DoesNotExist as exc:
             raise Exception(
                 f"Site with ID {settings.SITE_ID} does not exist. "
                 "Run 'python manage.py setup_site' first."
-            )
+            ) from exc
 
-        # Get or create the SocialApp
-        socialapp, created = SocialApp.objects.get_or_create(
-            provider='google',
-            defaults={
-                'name': 'Google',
-                'client_id': client_id,
-                'secret': client_secret,
-            }
+        # ------------------------------------------------------------------
+        # Find or create canonical SocialApp for this Site
+        # ------------------------------------------------------------------
+        qs = (
+            SocialApp.objects.filter(provider="google")
+            .prefetch_related("sites")
+            .order_by("id")
         )
 
-        # Update credentials if they've changed (important for production updates)
+        # Prefer SocialApps already linked to this Site
+        site_qs = qs.filter(sites=site).distinct()
+
+        socialapp = None
+        created = False
+        duplicates = []
+
+        if site_qs.exists():
+            # Use the oldest SocialApp as the canonical one for this Site
+            socialapp = site_qs.first()
+            duplicates = list(site_qs.exclude(pk=socialapp.pk))
+        else:
+            # No SocialApp currently linked to this Site
+            socialapp = qs.first()
+            if socialapp is None:
+                socialapp = SocialApp.objects.create(
+                    provider="google",
+                    name="Google",
+                    client_id=client_id,
+                    secret=client_secret,
+                )
+                created = True
+            else:
+                # There are existing SocialApps for other Sites, but none for
+                # this Site yet. Reuse the oldest one as canonical.
+                duplicates = list(qs.exclude(pk=socialapp.pk))
+
+        # ------------------------------------------------------------------
+        # Ensure credentials are up to date on the canonical SocialApp
+        # ------------------------------------------------------------------
         if socialapp.client_id != client_id or socialapp.secret != client_secret:
             socialapp.client_id = client_id
             socialapp.secret = client_secret
-            socialapp.save(update_fields=['client_id', 'secret'])
+            socialapp.save(update_fields=["client_id", "secret"])
             self.stdout.write("  Updated SocialApp credentials")
 
-        # Ensure SocialApp is linked to the Site
+        # ------------------------------------------------------------------
+        # Ensure canonical SocialApp is linked to the current Site
+        # ------------------------------------------------------------------
         if site not in socialapp.sites.all():
             socialapp.sites.add(site)
             self.stdout.write(f"  Linked SocialApp to Site: {site.domain}")
@@ -113,11 +154,35 @@ class Command(BaseCommand):
             self.stdout.write(f"  SocialApp already linked to Site: {site.domain}")
 
         if created:
-            self.stdout.write(f"  Created SocialApp for provider: google")
+            self.stdout.write("  Created SocialApp for provider: google")
         else:
-            self.stdout.write(f"  SocialApp already exists for provider: google")
+            self.stdout.write("  Reusing existing SocialApp for provider: google")
 
-        # Validate configuration
+        # ------------------------------------------------------------------
+        # De-duplicate additional SocialApps linked to this Site to prevent
+        # MultipleObjectsReturned inside django-allauth.
+        # ------------------------------------------------------------------
+        cleaned_count = 0
+        for dup in duplicates:
+            if site in dup.sites.all():
+                dup.sites.remove(site)
+                cleaned_count += 1
+
+                # If the duplicate is no longer linked to any Sites, remove it
+                if dup.sites.count() == 0:
+                    dup.delete()
+
+        if cleaned_count:
+            msg = (
+                f"  Cleaned up {cleaned_count} duplicate SocialApp record(s) "
+                f"for provider 'google' linked to Site: {site.domain}"
+            )
+            self.stdout.write(msg)
+            logger.warning(msg)
+
+        # ------------------------------------------------------------------
+        # Validate final configuration
+        # ------------------------------------------------------------------
         if not client_id or not client_secret:
             self.stdout.write(
                 self.style.WARNING(

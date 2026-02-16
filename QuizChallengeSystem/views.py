@@ -6,9 +6,6 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-import base64
-import requests
-import time
 
 from LearningResource.models import LearningModule, SubModule, BASIC_MODULES_NAME
 from .models import Quiz, Question, UserAnswer, Choice, QuizResult, Challenge
@@ -17,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from itertools import zip_longest
 
 from UserManagement.models import Student
+from CodeVenture.services.judge0_service import Judge0Service
 
 # Define constants for quiz result status
 SUCCESS = 3
@@ -157,7 +155,9 @@ def quiz_list(request, module_id):
 
 
 def quiz_summary_view(request, quiz_id):
-    # View for displaying a summary of quiz attempts.
+    """
+    View for displaying a summary of quiz attempts.
+    """
     quiz = get_object_or_404(Quiz, id=quiz_id)
     student = None
     if hasattr(request.user, 'student'):
@@ -172,11 +172,19 @@ def quiz_summary_view(request, quiz_id):
 
     attempts = QuizResult.objects.filter(user=student, quiz=quiz)
     now = timezone.now()
-    if not attempts.exists() and quiz.deadline > now and hasattr(request.user, 'student'):
-        return redirect('start_new_attempt', quiz_id)
+
+    # Check if a new attempt is allowed:
+    # 1. No previous attempts exist.
+    # 2. Results are not yet available (deadline hasn't passed OR no deadline exists).
+    # 3. User is a student.
+    is_deadline_future = quiz.deadline is None or quiz.deadline > now
+
+    if not attempts.exists() and is_deadline_future and hasattr(request.user, 'student'):
+        return redirect('start_new_attempt', sub_module_id=quiz.sub_module.id)
 
     module = quiz.sub_module.parent_module
     best_score = attempts.aggregate(Max('score'))['score__max']
+
     context = {
         'attempts': attempts,
         'quiz': quiz,
@@ -211,7 +219,7 @@ def challenge_view(request, challenge_id):
 @csrf_exempt
 def challenge_run_code(request):
     """
-    Executes the user's code against a predefined challenge using the Judge0 API.
+    Executes the user's code against a predefined challenge using the Judge0 Service.
     """
     if request.method != "POST":
          return JsonResponse({'error': 'Only POST method is supported.'}, status=405)
@@ -228,124 +236,57 @@ def challenge_run_code(request):
         # Retrieve the challenge object
         challenge = get_object_or_404(Challenge, id=challenge_id)
 
-        # Base64 encode the user's source code
-        encoded_code = base64.b64encode(code.encode('utf-8')).decode('utf-8')
-
         # Handle Standard Input (stdin)
         stdin = ""
         if challenge.std_in:
             try:
-                # Assuming std_in might be stored with unicode escapes in DB?
-                # If not, a simple encode is sufficient. Sticking to existing logic but adding safety.
-                stdin_raw = challenge.std_in.encode().decode('unicode_escape')
-                stdin = base64.b64encode(stdin_raw.encode('utf-8')).decode('utf-8')
+                stdin = challenge.std_in.encode().decode('unicode_escape')
             except Exception as e:
-                print(f"Error encoding stdin for challenge {challenge.id}: {e}")
-                stdin = base64.b64encode(challenge.std_in.encode('utf-8')).decode('utf-8')
+                print(f"Error decoding stdin for challenge {challenge.id}: {e}")
+                stdin = challenge.std_in
 
         # Handle Expected Output
         expected_output = ""
         if challenge.expected_output:
             try:
-                 expected_output_raw = challenge.expected_output.encode().decode('unicode_escape')
-                 expected_output = base64.b64encode(expected_output_raw.encode('utf-8')).decode('utf-8')
+                 expected_output = challenge.expected_output.encode().decode('unicode_escape')
             except Exception as e:
-                print(f"Error encoding expected_output for challenge {challenge.id}: {e}")
-                expected_output = base64.b64encode(challenge.expected_output.encode('utf-8')).decode('utf-8')
+                print(f"Error decoding expected_output for challenge {challenge.id}: {e}")
+                expected_output = challenge.expected_output
 
+        # Execute using Service
+        service = Judge0Service()
+        result_data = service.run_code(
+            code,
+            stdin=stdin,
+            expected_output=expected_output
+        )
 
-        url = "https://judge0-ce.p.rapidapi.com/submissions/"
-        querystring = {"base64_encoded": "true", "wait": "false", "fields": "*"}
+        if 'error' in result_data and not 'status_id' in result_data:
+             return JsonResponse(result_data, status=500)
 
-        payload = {
-            "language_id": 71, # Python (3.8.1)
-            "source_code": encoded_code,
-            "redirect_stderr_to_stdout": True,
-            "stdin": stdin,
-            "expected_output": expected_output
+        status_id = result_data.get('status_id')
+        success = result_data.get('success', False)
+
+        # Format response for frontend
+        context = {
+            'stdout': result_data.get('stdout', ''),
+            'result': success,
+            'expected_output': result_data.get('expected_output'),
+            'status_id': status_id,
+            'status_description': result_data.get('description', 'Unknown')
         }
 
-        headers = {
-            "content-type": "application/json",
-            "Content-Type": "application/json",
-            "X-RapidAPI-Key": "4488a01de2msh7b39afb80b4a53dp1f0172jsndd17e06649b3",
-            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
-        }
+        # Append error message if present (e.g. syntax error)
+        if 'error_message' in result_data:
+            context['stdout'] += f"\nError:\n{result_data['error_message']}"
 
-        # Submit Code
-        response = requests.post(url, json=payload, headers=headers, params=querystring)
-        response.raise_for_status() # Raise error for bad status codes
-
-        token = response.json().get('token')
-        if not token:
-             return JsonResponse({'error': 'Failed to retrieve submission token from Judge0.'}, status=500)
-
-        # Poll for Results
-        submission_url = f"https://judge0-ce.p.rapidapi.com/submissions/{token}"
-        submission_querystring = {"base64_encoded": "true", "fields": "*"}
-
-        # Initial wait
-        time.sleep(1.5) # Slightly reduced wait time
-
-        max_retries = 10
-        retry_count = 0
-        status_id = 0 # In Queue or Processing
-        response_data = {}
-
-        while status_id not in [SUCCESS, WRONG_ANSWER, RUN_TIME_ERROR] and status_id < 3 and retry_count < max_retries:
-             # Basic polling loop
-             sub_res = requests.get(submission_url, headers=headers, params=submission_querystring)
-             if sub_res.status_code == 200:
-                 response_data = sub_res.json()
-                 status_id = response_data.get('status_id')
-
-                 # Break early if finished
-                 if status_id >= 3:
-                     break
-
-             time.sleep(0.5)
-             retry_count += 1
-
-        # Process Final Result
-        if status_id in [SUCCESS, WRONG_ANSWER, RUN_TIME_ERROR]:
-            stdout_encoded = response_data.get('stdout', '')
-            decoded_output = ""
-            if stdout_encoded:
-                decoded_output = base64.b64decode(stdout_encoded).decode('utf-8', errors='replace')
-
-            # If Wrong Answer, check if execute output came from judge0 logic
-            expected_output_decoded = None
-            if status_id == WRONG_ANSWER:
-                expected_out_b64 = response_data.get('expected_output', '')
-                if expected_out_b64:
-                    expected_output_decoded = base64.b64decode(expected_out_b64).decode('utf-8', errors='replace')
-                # Fallback to our DB value if API didn't return it but we know it
-                elif challenge.expected_output:
-                     # Re-decode the raw DB value
-                     try:
-                        expected_output_decoded = challenge.expected_output.encode().decode('unicode_escape')
-                     except:
-                        expected_output_decoded = challenge.expected_output
-
-            context = {
-                'stdout': decoded_output,
-                'result': True if status_id == SUCCESS else False,
-                'expected_output': expected_output_decoded,
-                'status_id': status_id, # return status id specifically
-                'status_description': response_data.get('status', {}).get('description', 'Unknown')
-            }
-            return JsonResponse(context)
-        else:
-            # Handle timeout or other statuses
-            return JsonResponse({'error': 'Execution took too long or backend is busy.'}, status=504)
+        return JsonResponse(context)
 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
     except Challenge.DoesNotExist:
         return JsonResponse({'error': 'Challenge not found.'}, status=404)
-    except requests.RequestException as e:
-         print(f"External API Error: {e}")
-         return JsonResponse({'error': 'Error communicating with execution service.'}, status=503)
     except Exception as e:
         print(f"Internal Run Code Error: {e}")
         return JsonResponse({'error': f'An internal error occurred: {str(e)}'}, status=500)

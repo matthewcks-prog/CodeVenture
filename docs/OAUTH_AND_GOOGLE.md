@@ -1,6 +1,6 @@
 # Google OAuth (django-allauth)
 
-This document is the **single source of truth** for Google OAuth setup. 
+This document is the **single source of truth** for Google OAuth setup.
 
 ## Common Errors
 
@@ -98,20 +98,37 @@ When these are set, the app shows “Sign in with Google”; when either is miss
 
 ## Troubleshooting
 
-### Error 500 on `/accounts/google/login/callback/`
+### Error 500 on `/accounts/google/login/` or `/accounts/google/login/callback/`
 
-**Root cause:** Missing or misconfigured SocialApp database record.
+**Root cause:** Misconfigured SocialApp database records.
 
-**Solution:**
-1. Verify the SocialApp exists: Check Django admin → Social Applications
-2. Ensure it's linked to Site ID 1: The SocialApp must be associated with your Site
-3. Run setup command: `python manage.py setup_google_oauth`
-4. Check logs: Look for errors about missing SocialApp or Site linkage
+django-allauth expects that, for each Site, there is **exactly one** `SocialApp`
+for the Google provider. If there are **zero** records, or if there are
+**multiple** records linked to the same Site, you will see 500 errors in
+production with log messages such as:
+
+- `django.core.exceptions.ObjectDoesNotExist`
+- `django.core.exceptions.MultipleObjectsReturned`
+
+**Solution (idempotent, safe for all environments):**
+
+1. Run the setup command (this is already executed automatically in Render via `build.sh`):
+   ```bash
+   python manage.py setup_google_oauth
+   ```
+2. The command will:
+   - Create the Google SocialApp if it does not exist.
+   - Link it to the current `SITE_ID`.
+   - Update credentials from environment variables.
+   - **De-duplicate** any extra Google SocialApp records linked to the same Site, so that
+     django-allauth never raises `MultipleObjectsReturned` at runtime.
+3. Check logs for messages like:
+   - `Cleaned up N duplicate SocialApp record(s) for provider 'google'`
 
 **Common issues:**
-- SocialApp exists but not linked to Site → Run `setup_google_oauth`
-- Site doesn't exist → Run `python manage.py setup_site` first
-- Credentials mismatch → Run `setup_google_oauth` to sync from environment variables
+- SocialApp exists but not linked to Site → Run `setup_google_oauth`.
+- Site doesn't exist → Run `python manage.py setup_site` first.
+- Credentials mismatch → Run `setup_google_oauth` to sync from environment variables.
 
 ## Related docs
 

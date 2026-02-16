@@ -146,6 +146,12 @@ if _GOOGLE_CLIENT_ID and _GOOGLE_CLIENT_SECRET:
 GOOGLE_OAUTH_CONFIGURED = bool(_GOOGLE_CLIENT_ID and _GOOGLE_CLIENT_SECRET)
 
 # ---------------------------------------------------------------------------
+# RapidAPI (Judge0) Configuration
+# ---------------------------------------------------------------------------
+RAPIDAPI_KEY = os.environ.get('RAPIDAPI_KEY', '')
+RAPIDAPI_HOST = os.environ.get('RAPIDAPI_HOST', 'judge0-ce.p.rapidapi.com')
+
+# ---------------------------------------------------------------------------
 # Middleware
 # ---------------------------------------------------------------------------
 MIDDLEWARE = [
