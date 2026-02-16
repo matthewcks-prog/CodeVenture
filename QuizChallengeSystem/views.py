@@ -16,11 +16,6 @@ from itertools import zip_longest
 from UserManagement.models import Student
 from CodeVenture.services.judge0_service import Judge0Service
 
-# Define constants for quiz result status
-SUCCESS = 3
-WRONG_ANSWER = 4
-RUN_TIME_ERROR = 11
-
 
 @login_required
 def quiz_view(request, quiz_id):
@@ -209,10 +204,8 @@ def start_new_attempt(request, sub_module_id):
 
 
 def challenge_view(request, challenge_id):
-    challenge = Challenge.objects.get(id=challenge_id)
-    context = {
-        "challenge": challenge
-    }
+    challenge = get_object_or_404(Challenge, id=challenge_id)
+    context = {"challenge": challenge}
     return render(request, 'challenge.html', context)
 
 

@@ -4,11 +4,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from CodeVenture.services.judge0_service import Judge0Service
 
-# Define constants for quiz result status
-SUCCESS = 3
-WRONG_ANSWER = 4
-RUN_TIME_ERROR = 11
-
 def playground_view(request):
     return render(request, 'playground.html')
 

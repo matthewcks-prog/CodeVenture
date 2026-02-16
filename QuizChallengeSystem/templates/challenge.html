@@ -7,8 +7,6 @@
 
 {% block css %}
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="{% static 'package/min/vs/editor/editor.main.css' %}">
     <link rel="stylesheet" href="{% static 'css/nav-bar.css' %}"/>
     <style>
         .description {
@@ -89,15 +87,14 @@
         </div>
     </div>
 
-    <!-- Monaco Editor Scripts -->
-    <script src="{% static 'package/min/vs/loader.js' %}"></script>
+    <!-- Monaco Editor Scripts (served from CDN for reliability in production) -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
     <script>
-        // Dynamically determine the base path for 'vs' directory based on loader.js path
-        var loaderUrl = "{% static 'package/min/vs/loader.js' %}";
-        var vsPath = loaderUrl.substring(0, loaderUrl.lastIndexOf('/loader.js'));
-        require.config({paths: {'vs': vsPath}});
+        (function() {
+            var vsPath = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs";
+            require.config({paths: {'vs': vsPath}});
+        })();
     </script>
-    <script src="{% static 'package/min/vs/editor/editor.main.js' %}"></script>
 
     <!-- Dummy form to hold the CSRF token -->
     <form id="dummy_form" style="display:none;">
