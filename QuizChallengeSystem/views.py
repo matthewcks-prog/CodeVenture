@@ -15,6 +15,7 @@ from itertools import zip_longest
 
 from UserManagement.models import Student
 from CodeVenture.services.judge0_service import Judge0Service
+from CodeVenture.services.rate_limiter import is_over_limit_for_request
 
 
 @login_required
@@ -215,7 +216,17 @@ def challenge_run_code(request):
     Executes the user's code against a predefined challenge using the Judge0 Service.
     """
     if request.method != "POST":
-         return JsonResponse({'error': 'Only POST method is supported.'}, status=405)
+        return JsonResponse({'error': 'Only POST method is supported.'}, status=405)
+
+    # Lightweight guardrail to avoid excessive Judge0 usage in demos.
+    if is_over_limit_for_request(request, prefix="challenge_run", limit=3):
+        return JsonResponse(
+            {
+                'error': 'Demo rate limit exceeded. '
+                         'This endpoint only allows a few code runs per day.'
+            },
+            status=429,
+        )
 
     try:
         body_unicode = request.body.decode('utf-8')
@@ -224,7 +235,7 @@ def challenge_run_code(request):
         challenge_id = body_data.get('challenge_id')
 
         if not challenge_id:
-             return JsonResponse({'error': 'Challenge ID is required.'}, status=400)
+            return JsonResponse({'error': 'Challenge ID is required.'}, status=400)
 
         # Retrieve the challenge object
         challenge = get_object_or_404(Challenge, id=challenge_id)
@@ -242,7 +253,7 @@ def challenge_run_code(request):
         expected_output = ""
         if challenge.expected_output:
             try:
-                 expected_output = challenge.expected_output.encode().decode('unicode_escape')
+                expected_output = challenge.expected_output.encode().decode('unicode_escape')
             except Exception as e:
                 print(f"Error decoding expected_output for challenge {challenge.id}: {e}")
                 expected_output = challenge.expected_output
@@ -255,8 +266,8 @@ def challenge_run_code(request):
             expected_output=expected_output
         )
 
-        if 'error' in result_data and not 'status_id' in result_data:
-             return JsonResponse(result_data, status=500)
+        if 'error' in result_data and 'status_id' not in result_data:
+            return JsonResponse(result_data, status=500)
 
         status_id = result_data.get('status_id')
         success = result_data.get('success', False)

@@ -71,6 +71,9 @@
 
 
         <div id="container" class="bg-dark rounded p-3" style="height:500px;"></div>
+        <textarea id="fallback-editor"
+                  class="form-control mt-2"
+                  style="display:none; height:500px; font-family: 'Courier New', monospace;"></textarea>
 
         <div class="text-center mt-3">
             <div class="d-inline-block">
@@ -90,9 +93,73 @@
     <!-- Monaco Editor Scripts (served from CDN for reliability in production) -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
     <script>
-        (function() {
+        (function initializeChallengeEditor() {
+            function showFallbackEditor() {
+                var fallback = document.getElementById('fallback-editor');
+                if (fallback) {
+                    fallback.style.display = 'block';
+                }
+            }
+
+            if (typeof window === 'undefined') {
+                return;
+            }
+
+            window.getEditorCode = function () {
+                if (window.editor && typeof window.editor.getValue === 'function') {
+                    return window.editor.getValue();
+                }
+                var fallback = document.getElementById('fallback-editor');
+                return fallback ? fallback.value : '';
+            };
+
+            window.setEditorCode = function (value) {
+                if (window.editor && typeof window.editor.setValue === 'function') {
+                    window.editor.setValue(value);
+                } else {
+                    var fallback = document.getElementById('fallback-editor');
+                    if (fallback) {
+                        fallback.value = value;
+                    }
+                }
+            };
+
+            // If Monaco's AMD loader is unavailable, immediately fall back.
+            if (typeof require === 'undefined') {
+                console.warn('Monaco loader is not available. Falling back to plain textarea editor.');
+                showFallbackEditor();
+                return;
+            }
+
             var vsPath = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs";
             require.config({paths: {'vs': vsPath}});
+
+            try {
+                require(['vs/editor/editor.main'], function () {
+                    var container = document.getElementById('container');
+                    if (!container) {
+                        console.error('Editor container element not found.');
+                        showFallbackEditor();
+                        return;
+                    }
+
+                    window.editor = monaco.editor.create(container, {
+                        value: "# Write your Python code here\nprint('Hello, World!')",
+                        language: 'python',
+                        theme: 'vs-dark',
+                        automaticLayout: true
+                    });
+
+                    // Hide fallback textarea if Monaco loads successfully.
+                    var fallback = document.getElementById('fallback-editor');
+                    if (fallback) {
+                        fallback.style.display = 'none';
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to initialize Monaco editor. Falling back to textarea.', e);
+                showFallbackEditor();
+            }
         })();
     </script>
 
@@ -107,7 +174,23 @@
         }
 
         function runCode() {
-            var code = window.editor.getValue();
+            const outputElement = document.getElementById("output");
+
+            if (typeof window.getEditorCode !== 'function') {
+                outputElement.innerText = "Editor is not initialized. Please reload the page and try again.";
+                outputElement.classList.add("wrong-output");
+                outputElement.classList.remove("correct-output");
+                return;
+            }
+
+            var code = window.getEditorCode();
+
+            if (!code || !code.trim()) {
+                outputElement.innerText = "Please enter some code before running.";
+                outputElement.classList.add("wrong-output");
+                outputElement.classList.remove("correct-output");
+                return;
+            }
 
             fetch("{% url 'challenge_run_code' %}", {
                 method: "POST",
@@ -136,22 +219,23 @@
                 })
                 .catch(error => {
                     console.error("Error executing code:", error);
+                    const outputElement = document.getElementById("output");
+                    outputElement.innerText =
+                        "An error occurred while executing your code. Please try again in a moment.\n\n" +
+                        (error && error.message ? "Details: " + error.message : "");
+                    outputElement.classList.add("wrong-output");
+                    outputElement.classList.remove("correct-output");
                 });
         }
 
         const solutionCode = `{{ challenge.solution_code|escapejs }}`;
 
         function showSolution() {
-            window.editor.setValue(solutionCode);
+            if (typeof window.setEditorCode !== 'function') {
+                alert("Editor is not initialized yet. Please wait a moment and try again.");
+                return;
+            }
+            window.setEditorCode(solutionCode);
         }
-
-        require(['vs/editor/editor.main'], function () {
-            window.editor = monaco.editor.create(document.getElementById('container'), {
-                value: "# Write your Python code here\nprint('Hello, World!')",
-                language: 'python',
-                theme: 'vs-dark',
-                automaticLayout: true
-            });
-        });
     </script>
 {% endblock %}
