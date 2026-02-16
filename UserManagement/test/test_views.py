@@ -137,6 +137,17 @@ def test_complete_profile_for_student_get_request(student_authenticated, student
 
 
 @pytest.mark.django_db
+def test_complete_profile_student_page_has_birthday_date_picker(student_authenticated, student):
+    """Complete profile (student) renders birthday as text input + calendar picker for Mac/Safari."""
+    response = student_authenticated.get(reverse('complete_profile'))
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert 'id_birthday' in content
+    assert 'date-picker-input' in content
+    assert 'flatpickr' in content.lower()
+
+
+@pytest.mark.django_db
 def test_complete_profile_for_parent_get_request(parent_authenticated, parent):
     response = parent_authenticated.get(reverse('complete_profile'))
     assert response.status_code == 200
@@ -159,6 +170,20 @@ def test_complete_profile_for_student_post_request_valid_data(student_authentica
     response = student_authenticated.post(reverse('complete_profile'), data=post_data)
     assert response.status_code == 302
     assert response.url == reverse('home')
+
+
+@pytest.mark.django_db
+def test_complete_profile_student_birthday_saved_from_manual_entry(student_authenticated, student):
+    """Birthday submitted as YYYY-MM-DD (typed or from calendar) is saved correctly."""
+    post_data = {
+        'birthday': '2012-06-15',
+        'coding_experience': 'Little experience',
+    }
+    response = student_authenticated.post(reverse('complete_profile'), data=post_data)
+    assert response.status_code == 302
+    student.refresh_from_db()
+    assert student.birthday is not None
+    assert str(student.birthday) == '2012-06-15'
 
 
 @pytest.mark.django_db
@@ -312,8 +337,8 @@ def test_login_view_non_existing_user(client):
         "password": "somepass"
     })
     assert response.status_code == 200  # Expected the same page due to the error
-    assert "User does not exist" in [message.message for message in
-                                     messages.get_messages(response.wsgi_request)]
+    assert "Invalid username or password." in [message.message for message in
+                                              messages.get_messages(response.wsgi_request)]
 
 
 @pytest.mark.django_db
@@ -323,8 +348,8 @@ def test_login_view_wrong_password(client, user):
         "password": "wrongpass"
     })
     assert response.status_code == 200
-    assert 'Username or Password wrong.' in [message.message for message in
-                                             messages.get_messages(response.wsgi_request)]
+    assert 'Invalid username or password.' in [message.message for message in
+                                               messages.get_messages(response.wsgi_request)]
 
 
 # Test register_user
@@ -349,6 +374,24 @@ def test_register_user_invalid_form_data(client, user_type):
     assert response.status_code == 200  # Expected to stay on the same page due to form errors
     assert 'login_register.html' in [template.name for template in
                                      response.templates]  # Ensure we're on the registration page
+
+
+@pytest.mark.parametrize('user_type', ['student', 'parent', 'teacher'])
+@pytest.mark.django_db
+def test_register_page_renders_focusable_inputs(client, user_type):
+    """Registration page must render typable inputs (no disabled/readonly) for cross-device compatibility."""
+    response = client.get(reverse('register_user', args=[user_type]))
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'id="id_username"' in content
+    assert 'id="id_email"' in content
+    assert 'id="id_password1"' in content
+    assert 'id="id_password2"' in content
+    assert 'name="username"' in content
+    assert 'name="password1"' in content
+    assert 'autocomplete="username"' in content
+    assert 'autocomplete="new-password"' in content
+    assert 'login-form' in content
 
 
 # Tests complete_profile

@@ -5,14 +5,21 @@ import uuid
 
 
 class Challenge(models.Model):
-    # Model for representing coding challenges.
+    """Coding challenge, optionally scoped to a submodule for curriculum alignment."""
     name = models.CharField(max_length=50)
-    description = models.TextField()  # A detailed description of the coding challenge.
+    description = models.TextField()
     hints = models.TextField()
-    solution_code = models.TextField()  # The expected solution code.
-    std_in = models.TextField(null=True, blank=True)  # Standard input for the challenge (optional).
+    solution_code = models.TextField()
+    std_in = models.TextField(null=True, blank=True)
     expected_output = models.TextField(null=True, blank=True)
-    sample_output = models.TextField(null=True, blank=True)  # Sample output for the challenge (optional).
+    sample_output = models.TextField(null=True, blank=True)
+    sub_module = models.ForeignKey(
+        SubModule,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="challenges",
+    )
 
 
 class Quiz(models.Model):

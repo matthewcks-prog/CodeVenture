@@ -106,8 +106,12 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Google OAuth — configured entirely via environment variables.
 # When credentials are present, allauth uses settings-based config (no DB
-# SocialApp record needed).  When absent, the Google login button is hidden
+# SocialApp record needed). When absent, the Google login button is hidden
 # in templates via the `google_oauth_configured` context variable.
+#
+# Authorised redirect URI in Google Cloud Console must be the callback URL
+# (see CodeVenture.auth_config.GOOGLE_OAUTH_CALLBACK_PATH and docs/OAUTH_AND_GOOGLE.md).
+# Wrong: .../accounts/google/login/  Right: .../accounts/google/login/callback/
 _GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
 _GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', '')
 

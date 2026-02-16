@@ -52,7 +52,7 @@ class Teacher(models.Model):
         enrolled_module_progresses = ModuleProgress.objects.filter(module__in=teacher_modules)
         # Find students enrolled in these modules.
         enrolled_students = Student.objects.filter(
-            progresstracker__module_progress__in=enrolled_module_progresses).distinct()
+            progress_tracker__module_progress__in=enrolled_module_progresses).distinct()
         return enrolled_students
 
     def __str__(self):

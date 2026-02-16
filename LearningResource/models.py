@@ -3,6 +3,9 @@ from django.core.exceptions import ValidationError
 
 from . import youtube_utils
 
+# Canonical name for the entry-level module; must match curriculum_config.MODULES[0]["name"].
+BASIC_MODULES_NAME = "Basic Modules"
+
 
 class VideoTutorial(models.Model):
     name = models.CharField(max_length=50, default='')
@@ -67,6 +70,18 @@ class LearningModule(models.Model):
 
     def __str__(self):
         return self.name
+
+    def ordered_submodules(self):
+        """Return submodules in curriculum order (follow prev/next chain)."""
+        first = self.sub_modules.filter(prev_submodule__isnull=True).first()
+        if not first:
+            return list(self.sub_modules.all())
+        result = [first]
+        current = first
+        while current.next_submodule_id:
+            current = current.next_submodule
+            result.append(current)
+        return result
 
 
 class SubModule(models.Model):

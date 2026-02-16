@@ -3,8 +3,12 @@
    Dependencies: global.css (loaded via base_generic.html)
    ============================================== */
 
-/* --- Login / SignUp Form Card --- */
+/* --- Cross-device form input compatibility ---
+   Ensures inputs are focusable and typable on Safari/macOS, iOS, and all devices.
+   Root cause of "can't type" reports: stacking context and touch/focus behavior. */
 .login-container {
+  position: relative;
+  z-index: 1;
   width: 90%;
   max-width: 480px;
   margin: var(--spacing-3xl) auto;
@@ -13,6 +17,15 @@
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-lg);
 }
+
+.login-container input,
+.login-container textarea,
+.login-container select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* --- Login / SignUp Form Card --- */
 
 .center-text {
   text-align: center;
@@ -30,6 +43,11 @@
 .login-form {
   display: flex;
   flex-direction: column;
+  touch-action: manipulation;
+}
+
+.login-form .input-group {
+  margin-bottom: var(--spacing-lg);
 }
 
 /* --- Social Login --- */
@@ -105,10 +123,11 @@
   box-shadow: 0 0 0 3px rgba(50, 146, 218, 0.15);
 }
 
-/* Registration form fields (rendered via {{ form.as_p }}) */
+/* Registration / complete-profile form fields */
 .login-container input[type="text"],
 .login-container input[type="email"],
-.login-container input[type="password"] {
+.login-container input[type="password"],
+.login-container select {
   width: 100%;
   padding: var(--spacing-md) var(--spacing-md);
   border: 1px solid var(--color-gray-200);
@@ -119,9 +138,37 @@
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+.login-container select {
+  cursor: pointer;
+}
+
+.login-container select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(50, 146, 218, 0.15);
+}
+
 .login-container input[type="text"]:focus,
 .login-container input[type="email"]:focus,
 .login-container input[type="password"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(50, 146, 218, 0.15);
+}
+
+/* WebKit: ensure native overlays don't block keyboard input (Safari/macOS) */
+.login-container input[type="text"],
+.login-container input[type="email"],
+.login-container input[type="password"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Birthday date picker: text input + Flatpickr (Mac/Safari keyboard entry fix) */
+.login-container .date-picker-input {
+  cursor: text;
+}
+.login-container .date-picker-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(50, 146, 218, 0.15);
@@ -176,16 +223,30 @@
   text-decoration: underline;
 }
 
-/* --- Form Helpers (rendered via {{ form.as_p }}) --- */
+/* --- Form helpers and field errors --- */
 .login-form p {
   margin-top: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
 }
 
 .helptext {
+  display: block;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
   margin-bottom: var(--spacing-md);
+}
+
+.login-container .errorlist {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-sm);
+  color: #b91c1c;
+}
+
+.login-container .errorlist li {
+  margin-bottom: var(--spacing-xs);
 }
 
 .login-container ul {

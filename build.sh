@@ -28,4 +28,8 @@ python manage.py migrate --noinput
 echo "===> Configuring site record..."
 python manage.py setup_site
 
+# Seed curriculum (learning modules, submodules, CPE assessments). Idempotent; safe on every deploy.
+echo "===> Seeding curriculum data..."
+python manage.py seed_data
+
 echo "===> Build completed successfully!"

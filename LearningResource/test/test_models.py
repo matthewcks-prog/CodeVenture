@@ -120,3 +120,28 @@ def test_learning_module_str(learning_module):
 @pytest.mark.django_db
 def test_sub_module_str(sub_module):
     assert str(sub_module) == "DJ-Basics - Setup"
+
+
+@pytest.mark.django_db
+def test_learning_module_ordered_submodules(learning_module):
+    """ordered_submodules follows prev/next chain when present."""
+    v1 = VideoTutorial.objects.create(name="V1", video_id="11111111111")
+    v2 = VideoTutorial.objects.create(name="V2", video_id="22222222222")
+    s1 = SubModule.objects.create(
+        name="First",
+        parent_module=learning_module,
+        description="First",
+        video=v1,
+        prev_submodule=None,
+    )
+    s2 = SubModule.objects.create(
+        name="Second",
+        parent_module=learning_module,
+        description="Second",
+        video=v2,
+        prev_submodule=s1,
+    )
+    s1.next_submodule = s2
+    s1.save()
+    ordered = learning_module.ordered_submodules()
+    assert [x.name for x in ordered] == ["First", "Second"]

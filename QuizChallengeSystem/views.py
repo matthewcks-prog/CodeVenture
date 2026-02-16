@@ -10,7 +10,7 @@ import base64
 import requests
 import time
 
-from LearningResource.models import LearningModule, SubModule
+from LearningResource.models import LearningModule, SubModule, BASIC_MODULES_NAME
 from .models import Quiz, Question, UserAnswer, Choice, QuizResult, Challenge
 from .forms import QuizForm
 from django.contrib.auth.decorators import login_required
@@ -134,7 +134,7 @@ def quiz_result_view(request, result_id):
 
 
 def modules_list_quiz(request):
-    concept_modules = LearningModule.objects.exclude(name="Basic Modules").all()
+    concept_modules = LearningModule.objects.exclude(name=BASIC_MODULES_NAME).all()
 
     grouped_module = list(zip_longest(*[iter(concept_modules)] * 3))
 

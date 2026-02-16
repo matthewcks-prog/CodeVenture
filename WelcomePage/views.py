@@ -1,39 +1,31 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+
+from UserManagement.services import get_onboarding_redirect
 
 from .forms import TicketForm
 
 
 def home_view(request):
     """Landing page — shows WelcomePage for anonymous users,
-    MenuPage (with feedback form) for authenticated users.
+    MenuPage (with feedback form) for authenticated users who have completed onboarding.
     """
     form = TicketForm()
 
     if not request.user.is_authenticated:
-        return render(request, 'WelcomePage.html', {'form': form})
+        return render(request, "WelcomePage.html", {"form": form})
 
-    # --- Handle feedback form submission for all users ---
-    if request.method == 'POST':
+    # Handle feedback form submission for authenticated users
+    if request.method == "POST":
         form = TicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            # Associate with user if authenticated, otherwise leave null
-            if request.user.is_authenticated:
-                ticket.user = request.user
+            ticket.user = request.user
             ticket.save()
-            return redirect('home')
+            return redirect("home")
 
-    # Redirect users who haven't finished profile setup
-    profile_completed = False
-    if hasattr(request.user, 'student'):
-        profile_completed = request.user.student.profile_completed
-    elif hasattr(request.user, 'parent'):
-        profile_completed = request.user.parent.profile_completed
-    elif hasattr(request.user, 'teacher'):
-        profile_completed = True  # teachers have no extra profile step
+    # Single source of truth: UserManagement decides if user must complete onboarding
+    redirect_target = get_onboarding_redirect(request.user)
+    if redirect_target:
+        return redirect(redirect_target)
 
-    if not request.user.is_staff and not profile_completed:
-        return redirect('choose_user_type')
-
-    return render(request, 'MenuPage.html', {'form': form})
+    return render(request, "MenuPage.html", {"form": form})

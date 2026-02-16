@@ -3,6 +3,30 @@
   This file is kept for future specific overrides if needed.
 */
 
+.module-assessments {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+.module-assessments h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.challenge-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.challenge-links li {
+  margin: 0;
+}
+
 /* Keeping animation just in case, though might be unused now */
 @keyframes slide-in-right {
   0% {

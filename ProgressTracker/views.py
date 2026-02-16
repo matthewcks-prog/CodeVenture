@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 from .models import ModuleProgress, ProgressTracker
-from LearningResource.models import LearningModule
+from LearningResource.models import LearningModule, BASIC_MODULES_NAME
 from UserManagement.models import Parent, Student, Teacher
 
 logger = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ def parent_concept_modules_view(request):
         finished_count = 0
 
         for module in all_modules:
-            if module.name == "Basic Modules":
+            if module.name == BASIC_MODULES_NAME:
                 continue
             module_count += 1
 

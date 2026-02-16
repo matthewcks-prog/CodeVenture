@@ -64,8 +64,18 @@
             {% endif %}
 
             {% if submodule.quiz %}
-                <div style="text-align: center; margin-top: 20px;">
+                <div class="module-assessments">
                     <a class="nav-btn" href="{% url 'quiz_view' submodule.quiz.id %}">Take Quiz</a>
+                </div>
+            {% endif %}
+            {% if submodule.challenges.exists %}
+                <div class="module-assessments">
+                    <h3>Challenges</h3>
+                    <ul class="challenge-links">
+                        {% for challenge in submodule.challenges.all %}
+                            <li><a class="nav-btn nav-btn--secondary" href="{% url 'challenge' challenge.id %}">{{ challenge.name }}</a></li>
+                        {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
         </div>

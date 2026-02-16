@@ -1,11 +1,12 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from itertools import zip_longest
 
-from .models import LearningModule, SubModule
+from .models import LearningModule, SubModule, BASIC_MODULES_NAME
 from ProgressTracker.models import ModuleProgress, ProgressTracker
 from UserManagement.models import Student
 
@@ -18,9 +19,10 @@ def _get_student_or_redirect(request):
     Returns ``None`` if the user is not a student so callers can
     redirect gracefully instead of crashing with a 500.
     """
-    if not hasattr(request.user, 'student'):
+    try:
+        student = request.user.student
+    except ObjectDoesNotExist:
         return None
-    student = request.user.student
     tracker, _ = ProgressTracker.objects.get_or_create(student=student)
     return student, tracker
 
@@ -75,10 +77,10 @@ def basic_module_menu_view(request):
         return redirect('home')
     _student, tracker = result
 
-    try:
-        basic_module = LearningModule.objects.get(name="Basic Modules")
-    except LearningModule.DoesNotExist:
-        raise Http404("Basic Modules not found. Please contact an administrator.")
+    basic_module = get_object_or_404(
+        LearningModule,
+        name=BASIC_MODULES_NAME,
+    )
 
     module_progress, _created = ModuleProgress.objects.get_or_create(
         progress_tracker=tracker,
@@ -104,7 +106,7 @@ def concept_module_menu_view(request):
     finished_count = 0
 
     for module in all_modules:
-        if module.name == "Basic Modules":
+        if module.name == BASIC_MODULES_NAME:
             continue
         module_count += 1
 
@@ -131,7 +133,7 @@ def concept_module_menu_view(request):
 @login_required(login_url='/login/')
 def concept_module_view(request, module_id):
     module = get_object_or_404(LearningModule, id=module_id)
-    if module.name == "Basic Modules":
+    if module.name == BASIC_MODULES_NAME:
         return redirect('learning_modules')
 
     result = _get_student_or_redirect(request)
@@ -145,7 +147,7 @@ def concept_module_view(request, module_id):
     return render(request, 'ConceptModule.html', {
         'module': module,
         'module_progress': module_progress,
-        'sub_modules': module.sub_modules.all(),
+        'sub_modules': module.ordered_submodules(),
     })
 
 
@@ -156,9 +158,8 @@ def module_handler(request):
         return redirect('home')
     _student, tracker = result
 
-    try:
-        basic_module = LearningModule.objects.get(name="Basic Modules")
-    except LearningModule.DoesNotExist:
+    basic_module = LearningModule.objects.filter(name=BASIC_MODULES_NAME).first()
+    if not basic_module:
         return redirect('concept_modules')
 
     module_progress, _created = ModuleProgress.objects.get_or_create(

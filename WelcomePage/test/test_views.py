@@ -54,10 +54,20 @@ def test_authenticated_student_complete_profile(client, student):
 
 @pytest.mark.django_db
 def test_authenticated_student_incomplete_profile(client, student):
+    """User with a role but incomplete profile is sent to complete_profile, not choose_user_type."""
     client.login(username='testuser', password='password')
     response = client.get(reverse('home'))
-    assert response.status_code == 302  # Assuming the redirection happens due to incomplete profile
-    assert response.url == reverse('choose_user_type')
+    assert response.status_code == 302
+    assert response.url == reverse('complete_profile')
+
+
+@pytest.mark.django_db
+def test_authenticated_parent_incomplete_profile(client, parent):
+    """Parent with incomplete profile is sent to complete_profile."""
+    client.login(username='testuser', password='password')
+    response = client.get(reverse('home'))
+    assert response.status_code == 302
+    assert response.url == reverse('complete_profile')
 
 
 @pytest.mark.django_db
@@ -76,6 +86,15 @@ def test_authenticated_teacher(client, teacher):
     response = client.get(reverse('home'))
     assert response.status_code == 200
     assert 'MenuPage.html' in [template.name for template in response.templates]
+
+
+@pytest.mark.django_db
+def test_authenticated_user_no_role_redirects_to_choose_user_type(client, user):
+    """User with no role (e.g. OAuth) is sent to choose_user_type."""
+    client.login(username='testuser', password='password')
+    response = client.get(reverse('home'))
+    assert response.status_code == 302
+    assert response.url == reverse('choose_user_type')
 
 
 @pytest.mark.django_db
