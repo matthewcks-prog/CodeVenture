@@ -13,7 +13,11 @@ from django.contrib.auth.models import User
 
 from LearningResource.models import LearningModule, SubModule, VideoTutorial
 from LearningResource.curriculum_config import MODULES
-from LearningResource.assessment_config import CPE_SUBMODULE_ASSESSMENTS
+from LearningResource.assessment_config import (
+    CPE_SUBMODULE_ASSESSMENTS,
+    PYTHON_SUBMODULE_ASSESSMENTS,
+    WEB_SUBMODULE_ASSESSMENTS,
+)
 from QuizChallengeSystem.models import Quiz, Question, Choice, Challenge, QuizResult, UserAnswer
 
 logger = logging.getLogger(__name__)
@@ -46,6 +50,8 @@ class Command(BaseCommand):
                 if options["clear"]:
                     self._clear_data()
                 self._seed_learning_modules()
+                self._seed_python_assessments()
+                self._seed_web_assessments()
                 self._seed_cpe_assessments()
             self.stdout.write("")
             self.stdout.write(self.style.SUCCESS("=" * 70))
@@ -220,3 +226,83 @@ class Command(BaseCommand):
                 challenge_count += 1
 
         self.stdout.write(self.style.SUCCESS("  [OK] CPE: %d quizzes, %d challenges" % (quiz_count, challenge_count)))
+
+    def _seed_python_assessments(self):
+        """Create quizzes for Python Fundamentals submodules."""
+        self.stdout.write("\n[3/3] Seeding Python Fundamentals assessments...")
+        try:
+            python_module = LearningModule.objects.get(short_name="python")
+        except LearningModule.DoesNotExist:
+            self.stdout.write(self.style.WARNING("  [SKIP] No Python Fundamentals module found; run module seed first."))
+            return
+
+        quiz_count = 0
+        for sub in python_module.ordered_submodules():
+            assessments = PYTHON_SUBMODULE_ASSESSMENTS.get(sub.name)
+            if not assessments or "quiz" not in assessments:
+                continue
+
+            q_cfg = assessments["quiz"]
+            quiz, _ = Quiz.objects.get_or_create(
+                sub_module=sub,
+                defaults={"name": q_cfg["name"]},
+            )
+            quiz.name = q_cfg["name"]
+            quiz.save()
+            quiz.questions.all().delete()
+
+            for q_data in q_cfg["questions"]:
+                question = Question.objects.create(
+                    quiz=quiz,
+                    text=q_data["text"],
+                    points=q_data.get("points", 1),
+                )
+                for c_data in q_data["choices"]:
+                    Choice.objects.create(
+                        question=question,
+                        text=c_data["text"],
+                        is_correct=c_data["is_correct"],
+                    )
+            quiz_count += 1
+
+        self.stdout.write(self.style.SUCCESS("  [OK] Python Fundamentals: %d quizzes" % quiz_count))
+
+    def _seed_web_assessments(self):
+        """Create quizzes for Web Development submodules."""
+        self.stdout.write("\n[3/3] Seeding Web Development assessments...")
+        try:
+            web_module = LearningModule.objects.get(short_name="web")
+        except LearningModule.DoesNotExist:
+            self.stdout.write(self.style.WARNING("  [SKIP] No Web Development module found; run module seed first."))
+            return
+
+        quiz_count = 0
+        for sub in web_module.ordered_submodules():
+            assessments = WEB_SUBMODULE_ASSESSMENTS.get(sub.name)
+            if not assessments or "quiz" not in assessments:
+                continue
+
+            q_cfg = assessments["quiz"]
+            quiz, _ = Quiz.objects.get_or_create(
+                sub_module=sub,
+                defaults={"name": q_cfg["name"]},
+            )
+            quiz.name = q_cfg["name"]
+            quiz.save()
+            quiz.questions.all().delete()
+
+            for q_data in q_cfg["questions"]:
+                question = Question.objects.create(
+                    quiz=quiz,
+                    text=q_data["text"],
+                    points=q_data.get("points", 1),
+                )
+                for c_data in q_data["choices"]:
+                    Choice.objects.create(
+                        question=question,
+                        text=c_data["text"],
+                        is_correct=c_data["is_correct"],
+                    )
+            quiz_count += 1
+
+        self.stdout.write(self.style.SUCCESS("  [OK] Web Development: %d quizzes" % quiz_count))

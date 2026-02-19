@@ -1,9 +1,209 @@
 """
 Assessment configuration for curriculum modules: quizzes and coding challenges.
 
-Keyed by (module_short_name, submodule_name) for reliable lookups when seeding.
-Structure supports multiple modules; CPE is the first full set.
+Currently covers:
+- Python Fundamentals (quizzes only)
+- Web Development (quizzes only)
+- Computational Process Engineering (quizzes + coding challenges)
 """
+
+# Submodule name -> { "quiz": {...} } for Python Fundamentals
+PYTHON_SUBMODULE_ASSESSMENTS = {
+    "Python Syntax Basics": {
+        "quiz": {
+            "name": "Python Syntax Basics Quiz",
+            "questions": [
+                {
+                    "text": "Which of the following is valid Python syntax for defining a function?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "function my_func():", "is_correct": False},
+                        {"text": "def my_func():", "is_correct": True},
+                        {"text": "func my_func() ->", "is_correct": False},
+                        {"text": "define my_func[]:", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "What does indentation represent in Python?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "It is purely for style and has no effect.", "is_correct": False},
+                        {"text": "It marks the start and end of code blocks.", "is_correct": True},
+                        {"text": "It is only required inside functions.", "is_correct": False},
+                        {"text": "It is only required in comments.", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Which line correctly prints 'Hello' in Python 3?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "print 'Hello'", "is_correct": False},
+                        {"text": "echo('Hello')", "is_correct": False},
+                        {"text": "printf('Hello')", "is_correct": False},
+                        {"text": "print('Hello')", "is_correct": True},
+                    ],
+                },
+                {
+                    "text": "What will happen if you forget the colon at the end of an if statement?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "Python will automatically add it.", "is_correct": False},
+                        {"text": "The code will run but skip the if block.", "is_correct": False},
+                        {"text": "You will get a SyntaxError.", "is_correct": True},
+                        {"text": "It will only warn you, not fail.", "is_correct": False},
+                    ],
+                },
+            ],
+        },
+    },
+    "Lists and Dictionaries": {
+        "quiz": {
+            "name": "Python Collections Quiz",
+            "questions": [
+                {
+                    "text": "Which literal creates a list in Python?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "{1, 2, 3}", "is_correct": False},
+                        {"text": "[1, 2, 3]", "is_correct": True},
+                        {"text": "(1, 2, 3)", "is_correct": False},
+                        {"text": "list:1,2,3", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Given my_list = [1, 2, 3], what is my_list[0]?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "0", "is_correct": False},
+                        {"text": "1", "is_correct": True},
+                        {"text": "2", "is_correct": False},
+                        {"text": "IndexError", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Which option correctly creates a dictionary mapping 'name' to 'Alice'?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "['name' = 'Alice']", "is_correct": False},
+                        {"text": "{'name': 'Alice'}", "is_correct": True},
+                        {"text": "dict('name', 'Alice')", "is_correct": False},
+                        {"text": "('name' => 'Alice')", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "What does my_dict.get('age', 0) do?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "Always raises a KeyError.", "is_correct": False},
+                        {"text": "Returns 0 and removes the key 'age'.", "is_correct": False},
+                        {"text": "Returns the value for 'age' or 0 if it is missing.", "is_correct": True},
+                        {"text": "Creates the key 'age' with value 0.", "is_correct": False},
+                    ],
+                },
+            ],
+        },
+    },
+}
+
+
+# Submodule name -> { "quiz": {...} } for Web Development
+WEB_SUBMODULE_ASSESSMENTS = {
+    "HTML & CSS Basics": {
+        "quiz": {
+            "name": "HTML & CSS Basics Quiz",
+            "questions": [
+                {
+                    "text": "Which HTML tag is used to create a hyperlink?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "<a>", "is_correct": True},
+                        {"text": "<link>", "is_correct": False},
+                        {"text": "<h1>", "is_correct": False},
+                        {"text": "<p>", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Where is the correct place to link an external CSS file in an HTML document?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "Inside the <body> element", "is_correct": False},
+                        {"text": "Inside the <head> element", "is_correct": True},
+                        {"text": "At the very end of the file, after </html>", "is_correct": False},
+                        {"text": "It does not matter where it goes", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Which CSS property changes the text color?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "font-style", "is_correct": False},
+                        {"text": "background-color", "is_correct": False},
+                        {"text": "color", "is_correct": True},
+                        {"text": "text-align", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "What does the 'class' attribute in HTML allow you to do?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "Create a JavaScript class.", "is_correct": False},
+                        {"text": "Apply CSS styles to one or more elements.", "is_correct": True},
+                        {"text": "Define the page title.", "is_correct": False},
+                        {"text": "Set the document type.", "is_correct": False},
+                    ],
+                },
+            ],
+        },
+    },
+    "JavaScript Essentials": {
+        "quiz": {
+            "name": "JavaScript Essentials Quiz",
+            "questions": [
+                {
+                    "text": "Which HTML tag is used to include JavaScript code?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "<js>", "is_correct": False},
+                        {"text": "<script>", "is_correct": True},
+                        {"text": "<code>", "is_correct": False},
+                        {"text": "<javascript>", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "How do you declare a variable that can be reassigned in modern JavaScript?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "const myVar = 1;", "is_correct": False},
+                        {"text": "var myVar = 1;", "is_correct": True},
+                        {"text": "let myVar = 1;", "is_correct": True},
+                        {"text": "Both 'var' and 'let' can be used", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "Which expression correctly compares two values for equality in both value and type?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "a == b", "is_correct": False},
+                        {"text": "a = b", "is_correct": False},
+                        {"text": "a === b", "is_correct": True},
+                        {"text": "a => b", "is_correct": False},
+                    ],
+                },
+                {
+                    "text": "What is the result of console.log(typeof([])) in JavaScript?",
+                    "points": 1,
+                    "choices": [
+                        {"text": "'array'", "is_correct": False},
+                        {"text": "'object'", "is_correct": True},
+                        {"text": "'list'", "is_correct": False},
+                        {"text": "'[]'", "is_correct": False},
+                    ],
+                },
+            ],
+        },
+    },
+}
+
 
 # Submodule name -> { "quiz": {...}, "challenge": {...} } for Computational Process Engineering
 CPE_SUBMODULE_ASSESSMENTS = {
