@@ -25,9 +25,9 @@
         </header>
 
         <div class="module-content">
-            <ol class="progress-list">
-                {% for sub_module in sub_modules %}
-                    {% if sub_module.quiz %}
+            {% if quiz_sub_modules %}
+                <ol class="progress-list">
+                    {% for sub_module in quiz_sub_modules %}
                         <li class="progress-item">
                             <div class="progress-icon">
                                 <img src="{% static 'public/bicheck1.svg' %}" alt="Quiz icon"/>
@@ -36,9 +36,30 @@
                                 Quiz {{ forloop.counter }} - {{ sub_module.quiz.name }}
                             </a>
                         </li>
-                    {% endif %}
-                {% endfor %}
-            </ol>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <div class="description-box" style="margin-top: 12px;">
+                    <div class="description-text">
+                        <h3 class="description-title">Quizzes are locked</h3>
+                        <p class="description-paragraph">
+                            You’ll unlock quizzes for <strong>{{ module.short_name }}</strong> after you complete at least one lesson in this module.
+                        </p>
+                        {% if next_submodule_to_complete %}
+                            <p class="description-paragraph">
+                                Start here:
+                                <a class="progress-link" href="{% url 'lecture_view' next_submodule_to_complete.id %}">
+                                    {{ next_submodule_to_complete.name }}
+                                </a>
+                            </p>
+                        {% else %}
+                            <p class="description-paragraph">
+                                Go to the module lessons to get started.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

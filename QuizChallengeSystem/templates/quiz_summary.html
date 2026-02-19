@@ -64,7 +64,7 @@
                 {% if user.student %}
                     {% if quiz.deadline > now %}
                         <div class="d-flex mt-3">
-                            <a href="{% url 'start_new_attempt' quiz.id %}" class="btn btn-primary">Re-attempt quiz</a>
+                            <a href="{% url 'quiz_view' quiz.id %}" class="btn btn-primary">Re-attempt quiz</a>
                         </div>
                     {% else %}
                         <div style="text-align: center; font-size: 16px">No more attempts are allowed</div>

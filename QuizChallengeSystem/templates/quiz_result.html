@@ -23,7 +23,7 @@
             <div class="module-breadcrumb">
                 <a href="{% url 'module_handler' %}">My courses</a> /
                 <a href="{% url 'concept_module' quiz.sub_module.parent_module.id %}">{{ quiz.sub_module.parent_module.short_name }}</a> /
-                <a href="{% url 'quiz_list' quiz.sub_module.id %}">Quiz</a> /
+                <a href="{% url 'quiz_list' quiz.sub_module.parent_module.id %}">Quiz</a> /
                 <span>{{ quiz.name }}</span>
             </div>
             <h1 class="module-title">Quiz Results</h1>

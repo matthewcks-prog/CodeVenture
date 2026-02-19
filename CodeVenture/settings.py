@@ -104,27 +104,6 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-# Google OAuth — configured via environment variables and database.
-#
-# IMPORTANT: django-allauth requires BOTH:
-# 1. Settings-based configuration (below) - provides credentials
-# 2. Database SocialApp record - links provider to Site
-#
-# The SocialApp record is created/updated automatically during build via
-# `python manage.py setup_google_oauth`. This command ensures the SocialApp
-# exists and is linked to the correct Site (SITE_ID).
-#
-# When credentials are present, allauth uses settings-based config for
-# authentication, but still requires the SocialApp database record.
-# When absent, the Google login button is hidden in templates via the
-# `google_oauth_configured` context variable.
-#
-# Authorised redirect URI in Google Cloud Console must be the callback URL
-# (see CodeVenture.auth_config.GOOGLE_OAUTH_CALLBACK_PATH and docs/OAUTH_AND_GOOGLE.md).
-# Wrong: .../accounts/google/login/  Right: .../accounts/google/login/callback/
-_GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
-_GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', '')
-
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -135,14 +114,15 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-if _GOOGLE_CLIENT_ID and _GOOGLE_CLIENT_SECRET:
-    SOCIALACCOUNT_PROVIDERS['google']['APP'] = {
-        'client_id': _GOOGLE_CLIENT_ID,
-        'secret': _GOOGLE_CLIENT_SECRET,
-        'key': '',
-    }
+# Google OAuth credentials are configured via a SocialApp record in the
+# database, managed by the `setup_google_oauth` management command. This avoids
+# mixing settings-based APP configuration with a database SocialApp, which
+# django-allauth treats as multiple apps and raises MultipleObjectsReturned.
+_GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
+_GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET', '')
 
-# Expose to context processor (read-only, no secret leakage)
+# Expose a simple flag used by templates/context processors to decide whether
+# to show the "Sign in with Google" button.
 GOOGLE_OAUTH_CONFIGURED = bool(_GOOGLE_CLIENT_ID and _GOOGLE_CLIENT_SECRET)
 
 # ---------------------------------------------------------------------------

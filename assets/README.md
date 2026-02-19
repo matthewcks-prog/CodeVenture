@@ -6,4 +6,3 @@ Suggested files:
 - `progress-report.png` – progress tracking/report view
 
 You can capture screenshots locally and add them here; the main `README.md` references these paths.
-

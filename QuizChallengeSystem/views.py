@@ -16,6 +16,7 @@ from itertools import zip_longest
 from UserManagement.models import Student
 from CodeVenture.services.judge0_service import Judge0Service
 from CodeVenture.services.rate_limiter import is_over_limit_for_request
+from ProgressTracker.models import ProgressTracker, ModuleProgress
 
 
 @login_required
@@ -36,21 +37,27 @@ def quiz_view(request, quiz_id):
                 quiz=quiz,
                 user=request.user.student,
                 score=0,
-                total_questions=total_questions
+                total_questions=total_questions,
             )
 
             for question in questions:
                 selected_answer_id = form.cleaned_data.get(f"question_{question.id}")
-                selected_answer_text = Choice.objects.get(id=selected_answer_id).text
                 is_correct_answer = False
+                selected_answer_text = ""
 
                 try:
-                    correct_choice = question.choices.get(is_correct=True)
-                    if correct_choice.text == selected_answer_text:
-                        is_correct_answer = True
-                        score += 1
+                    if selected_answer_id is not None:
+                        choice_obj = Choice.objects.get(id=selected_answer_id)
+                        selected_answer_text = choice_obj.text
+
+                        correct_choice = question.choices.get(is_correct=True)
+                        if correct_choice.id == choice_obj.id:
+                            is_correct_answer = True
+                            score += 1
                 except Choice.DoesNotExist:
-                    pass
+                    # If either the selected or correct choice is missing,
+                    # treat the answer as incorrect but continue processing.
+                    selected_answer_text = selected_answer_text or ""
 
                 UserAnswer.objects.create(
                     quiz_result=quiz_result,
@@ -143,9 +150,40 @@ def quiz_list(request, module_id):
     module = get_object_or_404(LearningModule, id=module_id)
     sub_modules = module.sub_modules.all()
 
+    # If the user is a student, only show quizzes for submodules they've completed.
+    # When none are completed yet, we still render the page with a clear message
+    # explaining how to unlock quizzes.
+    student = None
+    module_progress = None
+    next_submodule_to_complete = None
+    quiz_sub_modules = []
+
+    if hasattr(request.user, "student"):
+        student = request.user.student
+        tracker, _ = ProgressTracker.objects.get_or_create(student=student)
+        module_progress, _ = ModuleProgress.objects.get_or_create(
+            progress_tracker=tracker,
+            module=module,
+        )
+        next_submodule_to_complete = module_progress.current_submodule()
+        completed = set(module_progress.completed_submodules.all())
+        quiz_sub_modules = [
+            sm for sm in sub_modules
+            if getattr(sm, "quiz", None) and sm in completed
+        ]
+    else:
+        # Non-students (e.g. parent/teacher) can view quizzes list without gating.
+        quiz_sub_modules = [
+            sm for sm in sub_modules
+            if getattr(sm, "quiz", None)
+        ]
+
     context = {
         'module': module,
         'sub_modules': sub_modules,
+        'quiz_sub_modules': quiz_sub_modules,
+        'module_progress': module_progress,
+        'next_submodule_to_complete': next_submodule_to_complete,
     }
     return render(request, 'quiz_list.html', context)
 
@@ -176,7 +214,8 @@ def quiz_summary_view(request, quiz_id):
     is_deadline_future = quiz.deadline is None or quiz.deadline > now
 
     if not attempts.exists() and is_deadline_future and hasattr(request.user, 'student'):
-        return redirect('start_new_attempt', sub_module_id=quiz.sub_module.id)
+        # For the first attempt, go straight to the quiz-taking view.
+        return redirect('quiz_view', quiz_id=quiz.id)
 
     module = quiz.sub_module.parent_module
     best_score = attempts.aggregate(Max('score'))['score__max']
