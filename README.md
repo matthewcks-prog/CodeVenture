@@ -4,7 +4,7 @@
 
 **CodeVenture** is an engaging and interactive platform aimed at young learners to make Python programming not just educational, but also fun and exciting. The platform incorporates game-like elements, quizzes, interactive tutorials, and weekly progress tracking to make learning Python a thrill.
 
-![CodeVenture Screenshot](assets/homepage.png)
+![CodeVenture Home](assets/home.png)
 
 ### Features 🌟
 
