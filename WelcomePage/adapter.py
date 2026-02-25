@@ -6,17 +6,49 @@ This adapter provides robust error handling for OAuth flows, ensuring
 that authentication errors are properly logged and user-friendly messages
 are displayed. It follows SOLID principles with single responsibility
 for OAuth user management.
+
+Root cause fix for 3rd party signup form: Google OAuth does not provide a
+username. Overriding populate_user ensures username is derived from email
+before allauth's auto-signup validation, preventing the signup form from
+being shown when SOCIALACCOUNT_AUTO_SIGNUP is True.
 """
 import logging
+import re
 from typing import Optional
+from allauth.account.utils import user_email, user_field, user_username
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.exceptions import ImmediateHttpResponse
-from django.shortcuts import redirect
+from allauth.utils import generate_unique_username
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
+
+
+def _derive_username_from_data(data: dict, fallback: str = "user") -> str:
+    """
+    Derive a username from provider data (email, name, etc.).
+    Used when provider (e.g. Google) does not supply username.
+    """
+    email = data.get("email") or ""
+    first_name = data.get("first_name") or ""
+    last_name = data.get("last_name") or ""
+    name = data.get("name") or ""
+
+    if email:
+        base = email.split("@")[0]
+    elif first_name and last_name:
+        base = f"{first_name}{last_name}"
+    elif first_name:
+        base = first_name
+    elif name:
+        base = name.split()[0] if name else ""
+    else:
+        base = ""
+
+    base = re.sub(r"[^a-zA-Z0-9]", "", base) if base else ""
+    return base or fallback
 
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
@@ -27,43 +59,41 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     and account linking. All errors are logged with full context for debugging.
     """
 
+    def populate_user(self, request, sociallogin, data):
+        """
+        Populate user from provider data. Ensures username is set from email
+        when provider (e.g. Google) does not supply it, so auto-signup
+        succeeds and the 3rd party signup form is never shown.
+        """
+        user = super().populate_user(request, sociallogin, data)
+        if not user_username(user) and (user_email(user) or data):
+            derived = _derive_username_from_data(
+                {
+                    "email": user_email(user) or data.get("email"),
+                    "first_name": user_field(user, "first_name") or data.get("first_name"),
+                    "last_name": user_field(user, "last_name") or data.get("last_name"),
+                    "name": data.get("name"),
+                }
+            )
+            user_username(user, generate_unique_username([derived, "user"]))
+        return user
+
     def populate_username(self, request, user):
         """
-        Auto-generate a unique username to bypass the signup form.
-
-        Attempts to use:
-        1. First part of email address
-        2. First name + Last name
-        3. Appends random numbers if conflict exists
+        Auto-generate a unique username when form-based save_user is used.
+        Fallback for save_user path; populate_user handles the auto-signup path.
         """
-        from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-        from allauth.utils import generate_unique_username
-
-        # Get variable from the user instance or sociallogin (if available in context)
-        # Note: 'user' passed here is the instance being populated
-
-        first_name = user.first_name or ""
-        last_name = user.last_name or ""
-        email = user.email or ""
-
-        username = ""
-
-        if email:
-            username = email.split('@')[0]
-        elif first_name and last_name:
-            username = f"{first_name}{last_name}"
-        elif first_name:
-            username = first_name
-
-        # Clean username (alphanumeric only recommended)
-        import re
-        username = re.sub(r'[^a-zA-Z0-9]', '', username)
-
-        if not username:
-            username = "user"
-
-        # Helper to check uniqueness
-        user.username = generate_unique_username([username, 'user'])
+        if user.username:
+            return
+        derived = _derive_username_from_data(
+            {
+                "email": getattr(user, "email", None) or "",
+                "first_name": getattr(user, "first_name", None) or "",
+                "last_name": getattr(user, "last_name", None) or "",
+            },
+            fallback="user",
+        )
+        user.username = generate_unique_username([derived, "user"])
 
     def save_user(self, request, sociallogin, form=None):
         """
@@ -151,8 +181,8 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
                 logger.debug(f"User {request.user.username} already authenticated, linking account")
                 return
 
-            # Check if user with this email already exists
-            if sociallogin.is_existing:
+            # Skip if user is already linked (avoid is_existing when user is None)
+            if sociallogin.user is not None and sociallogin.is_existing:
                 logger.debug("Social login is for existing account")
                 return
 
@@ -164,7 +194,11 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             # Try to link to existing user by email
             from django.contrib.auth.models import User
             try:
-                email = sociallogin.account.extra_data.get('email', '').strip().lower()
+                email = (
+                    (sociallogin.account.extra_data or {}).get("email") or ""
+                ).strip().lower()
+                if not email and sociallogin.email_addresses:
+                    email = (sociallogin.email_addresses[0].email or "").strip().lower()
                 if not email:
                     logger.debug("No email in OAuth data, skipping account linking")
                     return
@@ -217,8 +251,9 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             logger.info(f"User {user.username} logged in via social auth but has no role. Redirecting to selection.")
             return reverse('choose_user_type')
 
-        # If they have a role, proceed as normal
-        return super().get_login_redirect_url(request)
+        # If they have a role, use account adapter's default redirect
+        from allauth.account.adapter import get_adapter as get_account_adapter
+        return get_account_adapter(request).get_login_redirect_url(request)
 
     def authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
         """

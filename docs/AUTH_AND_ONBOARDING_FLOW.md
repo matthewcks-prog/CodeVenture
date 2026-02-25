@@ -32,11 +32,18 @@ Implemented in **`UserManagement.services.get_onboarding_redirect(user)`**. Used
 
 ### Login (existing user)
 
-1. User logs in → redirect to `next` or **home**.
-2. Home calls `get_onboarding_redirect(user)`:
+1. User logs in → redirect determined by `UserManagement.account_adapter.CustomAccountAdapter.get_login_redirect_url` (or `next` if specified).
+2. Adapter uses `get_onboarding_redirect(user)`:
    - If no role → **choose_user_type**.
    - If role but profile incomplete → **complete_profile**.
-   - Otherwise → **MenuPage**.
+   - Otherwise → **home** (MenuPage).
+
+### Google OAuth (Sign in with Google)
+
+1. User clicks "Sign in with Google" → Google OAuth flow.
+2. **Auto-signup:** `WelcomePage.adapter.CustomSocialAccountAdapter.populate_user` derives username from email (Google does not provide username), so the 3rd party signup form is bypassed.
+3. User is created and logged in → redirect via `CustomAccountAdapter.get_login_redirect_url` → **choose_user_type** (no role yet).
+4. User selects role → continues as per Sign up flow from step 3.
 
 ### Home link (your issue)
 
@@ -52,6 +59,8 @@ Implemented in **`UserManagement.services.get_onboarding_redirect(user)`**. Used
 ## Code references
 
 - **Onboarding logic:** `UserManagement.services.get_onboarding_redirect`
+- **Post-login redirect:** `UserManagement.account_adapter.CustomAccountAdapter.get_login_redirect_url`
+- **Social (Google) adapter:** `WelcomePage.adapter.CustomSocialAccountAdapter` (populate_user, pre_social_login)
 - **Home view:** `WelcomePage.views.home_view`
 - **Role selection:** `UserManagement.views.choose_user_type`
 - **Profile completion:** `UserManagement.views.complete_profile`

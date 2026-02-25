@@ -130,6 +130,15 @@ production with log messages such as:
 - Site doesn't exist → Run `python manage.py setup_site` first.
 - Credentials mismatch → Run `setup_google_oauth` to sync from environment variables.
 
+## 3rd party signup form bypass
+
+Google OAuth does not provide a username. By default, django-allauth would show a signup form to collect it. We bypass this via:
+
+- **`WelcomePage.adapter.CustomSocialAccountAdapter.populate_user`** – Derives username from email (or name) before auto-signup validation, so `SOCIALACCOUNT_AUTO_SIGNUP = True` succeeds and the form is never shown.
+- **`UserManagement.account_adapter.CustomAccountAdapter`** – Redirects new OAuth users directly to role selection (`choose_user_type`) instead of home.
+
+See [AUTH_AND_ONBOARDING_FLOW.md](AUTH_AND_ONBOARDING_FLOW.md) for the full flow.
+
 ## Related docs
 
 - [AUTH_AND_ONBOARDING_FLOW.md](AUTH_AND_ONBOARDING_FLOW.md) – Login, signup, and onboarding redirect logic.

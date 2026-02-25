@@ -1,9 +1,12 @@
 from django.test import TestCase, RequestFactory
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.urls import reverse
-from allauth.socialaccount.models import SocialAccount, SocialLogin
-from WelcomePage.adapter import CustomSocialAccountAdapter
+from allauth.socialaccount.models import SocialAccount, SocialLogin, SocialApp
+from WelcomePage.adapter import CustomSocialAccountAdapter, _derive_username_from_data
 from UserManagement.models import Student
+
 
 class CustomSocialAccountAdapterTest(TestCase):
 
@@ -12,6 +15,14 @@ class CustomSocialAccountAdapterTest(TestCase):
         self.adapter = CustomSocialAccountAdapter()
         # Create a user without a role
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password')
+        # Ensure Site and SocialApp exist for pre_social_login linking (connect needs them)
+        site, _ = Site.objects.get_or_create(pk=settings.SITE_ID, defaults={"domain": "testserver", "name": "Test"})
+        app, _ = SocialApp.objects.get_or_create(
+            provider="google",
+            defaults={"name": "Google", "client_id": "test-id", "secret": "test-secret"},
+        )
+        if site not in app.sites.all():
+            app.sites.add(site)
 
     def test_get_login_redirect_url_no_role(self):
         """Test redirection to role selection if user has no role."""
@@ -76,3 +87,29 @@ class CustomSocialAccountAdapterTest(TestCase):
         self.adapter.populate_username(None, user)
         self.assertNotEqual(user.username, "newuser")
         self.assertTrue(user.username.startswith("newuser"))
+
+    def test_populate_user_sets_username_from_email(self):
+        """Test that populate_user derives username from email when provider doesn't supply it."""
+        request = self.factory.get('/accounts/google/login/')
+        from allauth.socialaccount.models import SocialLogin
+        from allauth.socialaccount.models import SocialAccount
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        account = SocialAccount(provider='google', uid='99999')
+        account.extra_data = {'email': 'googleuser@example.com', 'given_name': 'Google', 'family_name': 'User'}
+        sociallogin = SocialLogin(account=account)
+        sociallogin.user = User()
+        sociallogin.user.email = 'googleuser@example.com'
+        sociallogin.user.first_name = 'Google'
+        sociallogin.user.last_name = 'User'
+        sociallogin.user.username = ''
+        data = {'email': 'googleuser@example.com', 'first_name': 'Google', 'last_name': 'User'}
+        user = self.adapter.populate_user(request, sociallogin, data)
+        self.assertTrue(user.username)
+        self.assertIn('googleuser', user.username.lower())
+
+    def test_derive_username_from_data(self):
+        """Test _derive_username_from_data helper."""
+        self.assertEqual(_derive_username_from_data({'email': 'user@domain.com'}), 'user')
+        self.assertEqual(_derive_username_from_data({'first_name': 'John', 'last_name': 'Doe'}), 'JohnDoe')
+        self.assertEqual(_derive_username_from_data({}), 'user')

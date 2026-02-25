@@ -86,6 +86,7 @@ SITE_ID = 1
 # ---------------------------------------------------------------------------
 
 # Account settings (updated for allauth 0.50+)
+ACCOUNT_ADAPTER = "UserManagement.account_adapter.CustomAccountAdapter"
 ACCOUNT_LOGIN_METHODS = {'username'}  # Primary login method
 ACCOUNT_SIGNUP_FIELDS = [
     'email*',      # Required email field
@@ -206,6 +207,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use non-manifest storage in tests so static files resolve without collectstatic
+import sys
+if 'test' in sys.argv or any('pytest' in str(a) for a in (sys.argv or [])):
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # ---------------------------------------------------------------------------
 # Auth redirects
